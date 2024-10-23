@@ -1,0 +1,1 @@
+web: gunicorn AtruX.wsgi --log-file -
