@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify email</title>
+</head>
+
+<body>
+    <h1>Verify email</h1>
+    <script>
+        function request() {
+            var url1 = window.location.href.split('/acti')[0];
+            url2 = "/auth/users/activation/";
+            url3 = "/activate/email/ok";
+            var url = url1.concat(url2);
+            let id = '{{ uid }}';
+            let tok = '{{ token }}';
+            let data = { uid: id, token: tok };
+
+            fetch(url, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(res => {
+                // console.log("Request complete! response:", res);
+                if (res.status == 204) {
+                    window.location.replace(url1.concat(url3));
+                }
+                else{
+                    alert("There was an error. Please try again later");
+                }
+            });
+        }
+    </script>
+    <button onclick="request()">activate</button>
+    </form>
+</body>
+
+</html>
