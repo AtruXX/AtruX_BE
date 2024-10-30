@@ -18,6 +18,13 @@ class MyUserManager(BaseUserManager):
 
         user.set_password(password)
         user.save(using=self._db)
+
+        if is_driver:
+            Driver.objects.create(user=user)
+        elif is_dispatcher:
+            Dispatcher.objects.create(user=user)
+    
+
         return user
     
     def create_superuser(self, email, first_name, last_name, password=None):
