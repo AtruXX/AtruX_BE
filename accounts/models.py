@@ -8,7 +8,9 @@ class MyUserManager(BaseUserManager):
             raise ValueError("Users must have an email address")
         
         if is_dispatcher == True and is_driver == True:
-            raise ValueError("Cannot be driver and dispacher at the same time");
+            raise ValueError("Cannot be driver and dispacher at the same time")
+        elif is_dispatcher == False and is_driver == False:
+            raise ValueError("Must be either driver or dispatcher")
 
         user = self.model(
             email = self.normalize_email(email),
