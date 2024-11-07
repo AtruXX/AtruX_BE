@@ -26,3 +26,18 @@ def GetDrivers(request):
         return Response(driver_data)
     else:
         return Response("You are not a dispatcher", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GetProfile(request):
+    userr = request.user
+    profile_json = {
+            'id': userr.id,
+            'email': userr.email,
+            'name': userr.name,
+            'company': userr.company.name,
+            'is_dispatcher': userr.is_dispatcher,
+            'is_driver': userr.is_driver
+    }
+    profile = UserCreateSerializerr(profile_json).data
+    return Response(profile, status=200)
