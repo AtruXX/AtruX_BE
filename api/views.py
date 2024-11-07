@@ -41,7 +41,8 @@ def GetProfile(request):
             'company': userr.company.name,
             'is_dispatcher': userr.is_dispatcher,
             'is_driver': userr.is_driver,
-            'rating': rating
+            'rating': rating,
+            'on_road': driver.on_road
         }
     else:
         profile_json = {
@@ -69,3 +70,15 @@ def GiveRating(request):
         return Response("Rating given", status=200)
     else:
         return Response("You are not a dispatcher", status=403)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def ChangeStatus(request):
+    userr = request.user
+    if userr.is_driver:
+        driver = Driver.objects.get(user=userr)
+        driver.on_road = not driver.on_road
+        driver.save()
+        return Response("Status changed", status=200)
+    else:
+        return Response("You are not a driver", status=403)

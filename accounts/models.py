@@ -69,3 +69,4 @@ class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="driver")
     rating = models.FloatField(default=0.0)
     nr_of_ratings = models.IntegerField(default=0)
+    on_road = models.BooleanField(default=False)
