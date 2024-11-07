@@ -57,7 +57,6 @@ class User(AbstractBaseUser):
     is_driver = models.BooleanField(default=False)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
-
     objects = MyUserManager()
 
     USERNAME_FIELD = "email"
@@ -68,3 +67,5 @@ class Dispatcher(models.Model):
 
 class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="driver")
+    rating = models.FloatField(default=0.0)
+    nr_of_ratings = models.IntegerField(default=0)
