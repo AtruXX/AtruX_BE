@@ -48,4 +48,5 @@ Response is returned in **.json** format
     https://atrux-717ecf8763ea.herokuapp.com//auth/users/me/ -> Get authenticated user [GET]
     https://atrux-717ecf8763ea.herokuapp.com/get_drivers -> Get all drivers from the same company (must be authenticated as a dispacher) [GET]
     https://atrux-717ecf8763ea.herokuapp.com/get_profile -> Get user profile(must be authenticated) [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/give_rating/ -> Give rating to a driver (as a dispacher) [PUT] fields: "driver_id", "rating"
     https://atrux-717ecf8763ea.herokuapp.com/change_status/ -> Change driver status (on_road) [PUT]
