@@ -10,11 +10,14 @@ from accounts.models import User, Driver, Dispatcher
 def GetDrivers(request):
     userr = request.user
     if userr.is_dispatcher:
-        drivers = User.objects.filter(company=userr.company, is_driver=True)
+        driver_users = User.objects.filter(company=userr.company, is_driver=True)
         driver_list = []
-        for driver in drivers:
-            ddriver = Driver.objects.get(driver.id)
-            rating = ddriver.rating / ddriver.nr_of_ratings
+        for driver in driver_users:
+            driver_prorierties = Driver.objects.get(user=driver)
+            if driver_prorierties.nr_of_ratings == 0:
+                rating = 0.0
+            else:
+                rating = driver_prorierties.rating / driver_prorierties.nr_of_ratings
             driver_json = {
                 'id': driver.id,
                 'email': driver.email,
@@ -22,12 +25,11 @@ def GetDrivers(request):
                 'company': driver.company.name,
                 'is_dispatcher': driver.is_dispatcher,
                 'is_driver': driver.is_driver,
-                'rating' : rating,
-                'on_road': ddriver.on_road
+                'rating': rating,
+                'on_road': driver_prorierties.on_road,
             }
             driver_list.append(driver_json)
-        driver_data = UserCreateSerializerr(driver_list, many=True).data
-        return Response(driver_data)
+        return Response(driver_list)
     else:
         return Response("You are not a dispatcher", status=403)
 
@@ -37,7 +39,10 @@ def GetProfile(request):
     userr = request.user
     if userr.is_driver:
         driver = Driver.objects.get(user=userr)
-        rating = driver.rating / driver.nr_of_ratings
+        if driver.nr_of_ratings == 0:
+                rating = 0.0
+        else:
+            rating = driver.rating / driver.nr_of_ratings
         profile_json = {
             'id': userr.id,
             'email': userr.email,
