@@ -13,7 +13,8 @@ def GetDrivers(request):
         drivers = User.objects.filter(company=userr.company, is_driver=True)
         driver_list = []
         for driver in drivers:
-            rating = driver.rating / driver.nr_of_ratings
+            ddriver = Driver.objects.get(company=userr.company)
+            rating = ddriver.rating / ddriver.nr_of_ratings
             driver_json = {
                 'id': driver.id,
                 'email': driver.email,
@@ -21,7 +22,8 @@ def GetDrivers(request):
                 'company': driver.company.name,
                 'is_dispatcher': driver.is_dispatcher,
                 'is_driver': driver.is_driver,
-                'on_road': driver.on_road
+                'rating' : rating,
+                'on_road': ddriver.on_road
             }
             driver_list.append(driver_json)
         driver_data = UserCreateSerializerr(driver_list, many=True).data
