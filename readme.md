@@ -39,13 +39,13 @@ If you get https errors clear browser cache
 Response is returned in **.json** format
 
 ## <b>User management</b>
-    https://atrux-717ecf8763ea.herokuapp.com//auth/users/ -> Create user [POST]
-    https://atrux-717ecf8763ea.herokuapp.com//auth/users/resend_activation/ -> Resend user activation email [POST]
-    https://atrux-717ecf8763ea.herokuapp.com//auth/token/login/ -> Login user [POST]
-    https://atrux-717ecf8763ea.herokuapp.com//auth//token/logout/ -> Get new refresh token [POST]
-    https://atrux-717ecf8763ea.herokuapp.com//auth/users/reset_password/ -> Password reset [POST]
-    https://atrux-717ecf8763ea.herokuapp.com//auth/users/me/ -> User delete [DELETE]
-    https://atrux-717ecf8763ea.herokuapp.com//auth/users/me/ -> Get authenticated user [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/auth/users/ -> Create user [POST]
+    https://atrux-717ecf8763ea.herokuapp.com/auth/users/resend_activation/ -> Resend user activation email [POST]
+    https://atrux-717ecf8763ea.herokuapp.com/auth/token/login/ -> Login user [POST]
+    https://atrux-717ecf8763ea.herokuapp.com/auth//token/logout/ -> Get new refresh token [POST]
+    https://atrux-717ecf8763ea.herokuapp.com/auth/users/reset_password/ -> Password reset [POST]
+    https://atrux-717ecf8763ea.herokuapp.com/auth/users/me/ -> User delete [DELETE]
+    https://atrux-717ecf8763ea.herokuapp.com/auth/users/me/ -> Get authenticated user [GET]
     https://atrux-717ecf8763ea.herokuapp.com/get_drivers -> Get all drivers from the same company (must be authenticated as a dispacher) [GET]
     https://atrux-717ecf8763ea.herokuapp.com/get_profile -> Get user profile(must be authenticated) [GET]
     https://atrux-717ecf8763ea.herokuapp.com/give_rating/ -> Give rating to a driver (as a dispacher) [PUT] fields: "driver_id", "rating"
