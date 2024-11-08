@@ -13,7 +13,7 @@ def GetDrivers(request):
         drivers = User.objects.filter(company=userr.company, is_driver=True)
         driver_list = []
         for driver in drivers:
-            ddriver = Driver.objects.get(company=userr.company)
+            ddriver = Driver.objects.get(driver.id)
             rating = ddriver.rating / ddriver.nr_of_ratings
             driver_json = {
                 'id': driver.id,
