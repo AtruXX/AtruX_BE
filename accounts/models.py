@@ -70,3 +70,4 @@ class Driver(models.Model):
     rating = models.FloatField(default=0.0)
     nr_of_ratings = models.IntegerField(default=0)
     on_road = models.BooleanField(default=False)
+    documents = models.FileField(upload_to="driver_documents/", blank=True, null=True)

@@ -91,3 +91,29 @@ def ChangeStatus(request):
         return Response("Status changed", status=200)
     else:
         return Response("You are not a driver", status=403)
+    
+@api_view(['PUT'])
+# @permission_classes([IsAuthenticated])
+def UploadDriverDocument(request):
+    userr = request.user
+    if userr.is_driver:
+        driver = Driver.objects.get(user=userr)
+        driver.documents = request.data.get('document')
+        if driver.documents == None:
+            return Response("No document uploaded", status=400)
+        driver.save()
+        return Response("Document uploaded", status=200)
+    else:
+        return Response("You are not a driver", status=403)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GetDriverDocument(request):
+    userr = request.user
+    if userr.is_driver:
+        driver = Driver.objects.get(user=userr)
+        if driver.documents == None:
+            return Response("No document uploaded", status=400)
+        return Response({"document_url": driver.documents.url}, status=200)
+    else:
+        return Response("You are not a driver", status=403)
