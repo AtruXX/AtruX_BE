@@ -5,3 +5,4 @@ gunicorn
 whitenoise
 djoser
 django-cors-headers
+django-storages[s3]

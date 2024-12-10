@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
-from accounts.models import User, Driver, Dispatcher
+from accounts.models import User, Driver, Dispatcher, Document
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -91,3 +91,44 @@ def ChangeStatus(request):
         return Response("Status changed", status=200)
     else:
         return Response("You are not a driver", status=403)
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def UploadUserDocuments(request):
+    userr = request.user
+    title = request.data.get('title')
+    if not title:
+        return Response("Title is required", status=400)
+    document = Document.objects.create(user=userr, title=title, document=request.data.get('document'))
+    document.save()
+    return Response("Document uploaded", status=200)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GetUserDocumentsList(request):
+    userr = request.user
+    documents = Document.objects.filter(user=userr)
+    documents_list = []
+    for document in documents:
+        document_json = {
+            'id': document.id,
+            'title': document.title,
+            'document': document.document.url
+        }
+        documents_list.append(document_json)
+    return Response(documents_list, status=200)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def DeleteUserDocument(request):
+    userr = request.user
+    document_id = request.data.get('document_id')
+    document = Document.objects.get(id=document_id)
+    if document.user == userr:
+        document.document.delete(save=False)
+        document.delete()
+        return Response("Document deleted", status=200)
+    else:
+        return Response("You are not the owner of this document", status=403)
