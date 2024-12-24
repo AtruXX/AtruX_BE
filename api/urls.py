@@ -9,5 +9,7 @@ urlpatterns = [
     path('upload_documents/', views.UploadUserDocuments),
     path('get_documents/', views.GetUserDocumentsList),
     path('delete_documents/', views.DeleteUserDocument),
+    path('change_title/', views.ChangeDocumentTitle),
+    path('replace_document/', views.ReplaceDocument),
 ]
 

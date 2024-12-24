@@ -126,9 +126,39 @@ def DeleteUserDocument(request):
     userr = request.user
     document_id = request.data.get('document_id')
     document = Document.objects.get(id=document_id)
-    if document.user == userr:
+    if document.user == userr or userr.is_dispatcher:
         document.document.delete(save=False)
         document.delete()
         return Response("Document deleted", status=200)
     else:
         return Response("You are not the owner of this document", status=403)
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def ChangeDocumentTitle(request):
+    userr = request.user
+    document_id = request.data.get('document_id')
+    title = request.data.get('title')
+    document = Document.objects.get(id=document_id)
+    if document.user == userr or userr.is_dispatcher:
+        document.title = title
+        document.save()
+        return Response("Title changed", status=200)
+    else:
+        return Response("You are not the owner of this document", status=403)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def ReplaceDocument(request):
+    userr = request.user
+    document_id = request.data.get('document_id')
+    document = Document.objects.get(id=document_id)
+    if document.user == userr or userr.is_dispatcher:
+        document.document.delete(save=False)
+        document.document = request.data.get('document')
+        document.save()
+        return Response("Document replaced", status=200)
+    else:
+        return Response("You are not the owner of this document", status=403)
+    

@@ -53,3 +53,5 @@ Response is returned in **.json** format
     https://atrux-717ecf8763ea.herokuapp.com/get_documents -> Get current user documents [GET]
     https://atrux-717ecf8763ea.herokuapp.com/upload_documents/ -> Upload a document for the current user [PUT]
     https://atrux-717ecf8763ea.herokuapp.com/delete_documents/ -> Delete a document from the current user by document_id [DELETE]
+    https://atrux-717ecf8763ea.herokuapp.com/change_document_title/ -> Change the name of a document by document_id [PUT]
+    https://atrux-717ecf8763ea.herokuapp.com/replace_document/ -> Replace a document by document_id and the new document [PUT]
