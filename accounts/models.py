@@ -76,3 +76,4 @@ class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank=True, null=True)
     document = models.FileField(upload_to="documents/", blank=True, null=True)
+    category = models.CharField(max_length=100, blank=True, null=True)

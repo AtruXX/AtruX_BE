@@ -50,7 +50,7 @@ Response is returned in **.json** format
     https://atrux-717ecf8763ea.herokuapp.com/get_profile -> Get user profile(must be authenticated) [GET]
     https://atrux-717ecf8763ea.herokuapp.com/give_rating/ -> Give rating to a driver (as a dispacher) [PUT] fields: "driver_id", "rating"
     https://atrux-717ecf8763ea.herokuapp.com/change_status/ -> Change driver status (on_road) [PUT]
-    https://atrux-717ecf8763ea.herokuapp.com/get_documents -> Get current user documents [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/get_documents/<category>/ -> Get current user documents [GET]
     https://atrux-717ecf8763ea.herokuapp.com/upload_documents/ -> Upload a document for the current user [PUT]
     https://atrux-717ecf8763ea.herokuapp.com/delete_documents/ -> Delete a document from the current user by document_id [DELETE]
     https://atrux-717ecf8763ea.herokuapp.com/change_document_title/ -> Change the name of a document by document_id [PUT]

@@ -97,24 +97,32 @@ def ChangeStatus(request):
 def UploadUserDocuments(request):
     userr = request.user
     title = request.data.get('title')
+    category = request.data.get('category')
+    document=request.data.get('document')
     if not title:
         return Response("Title is required", status=400)
-    document = Document.objects.create(user=userr, title=title, document=request.data.get('document'))
+    if document == None:
+        return Response("Document is required", status=400)
+    document = Document.objects.create(user=userr, title=title, category=category, document=document)
     document.save()
     return Response("Document uploaded", status=200)
     
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def GetUserDocumentsList(request):
+def GetUserDocumentsList(request, category=None):
     userr = request.user
-    documents = Document.objects.filter(user=userr)
+    if category == None:
+        documents = Document.objects.filter(user=userr)
+    else:
+        documents = Document.objects.filter(user=userr, category=category)
     documents_list = []
     for document in documents:
         document_json = {
             'id': document.id,
             'title': document.title,
-            'document': document.document.url
+            'document': document.document.url,
+            'category': document.category
         }
         documents_list.append(document_json)
     return Response(documents_list, status=200)

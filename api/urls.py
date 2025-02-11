@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
@@ -7,7 +7,8 @@ urlpatterns = [
     path('give_rating/', views.GiveRating),
     path('change_status/', views.ChangeStatus),
     path('upload_documents/', views.UploadUserDocuments),
-    path('get_documents/', views.GetUserDocumentsList),
+    path('upload_documents/', views.UploadUserDocuments),
+    re_path(r'^get_documents(?:/(?P<category>[^/]+))?/$', views.GetUserDocumentsList),
     path('delete_documents/', views.DeleteUserDocument),
     path('change_title/', views.ChangeDocumentTitle),
     path('replace_document/', views.ReplaceDocument),
