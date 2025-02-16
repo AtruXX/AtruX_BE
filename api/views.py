@@ -4,6 +4,8 @@ from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from accounts.models import User, Driver, Dispatcher, Document
+from base.models import Point, Route
+from datetime import date
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -170,3 +172,59 @@ def ReplaceDocument(request):
     else:
         return Response("You are not the owner of this document", status=403)
     
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def CreateRoute(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        driver_id = request.data.get('driver_id')
+        current_date = date.today()
+        driver = User.objects.get(id=driver_id)
+        if driver.company != userr.company:
+            return Response("Driver is not from the same company", status=400)
+        route = Route.objects.create(driver=driver, dispatcher=userr, date=current_date)
+        points = request.data.get('points', [])
+        route.save()
+        for point in points:
+            name = point.get('name')
+            latitude = point.get('latitude')
+            longitude = point.get('longitude')
+            point, created = Point.objects.get_or_create(name=name, latitude=latitude, longitude=longitude)
+            route.points.add(point)
+        return Response("Route created", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GetRoutes(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        routes = Route.objects.filter(dispatcher=userr)
+    elif userr.is_driver:
+        routes = Route.objects.filter(driver=userr)
+    else:
+        return Response("You are not authorized to view routes", status=403)
+
+    current_date = date.today()
+    routes_list = []
+    for route in routes:
+        if route.date == current_date:
+            points_list = []
+            for point in route.points.all():
+                point_json = {
+                    'name': point.name,
+                    'latitude': point.latitude,
+                    'longitude': point.longitude
+                }
+                points_list.append(point_json)
+            route_json = {
+                'id': route.id,
+                'driver': route.driver.id,
+                'dispatcher': route.dispatcher.id,
+                'points': points_list,
+                'date': route.date
+            }
+            routes_list.append(route_json)
+    return Response(routes_list, status=200)

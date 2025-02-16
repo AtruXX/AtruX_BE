@@ -12,5 +12,7 @@ urlpatterns = [
     path('delete_documents/', views.DeleteUserDocument),
     path('change_title/', views.ChangeDocumentTitle),
     path('replace_document/', views.ReplaceDocument),
+    path('create_route/', views.CreateRoute),
+    path('get_routes/', views.GetRoutes),
 ]
 
