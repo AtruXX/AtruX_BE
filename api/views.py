@@ -94,7 +94,7 @@ def ChangeStatus(request):
     else:
         return Response("You are not a driver", status=403)
     
-@api_view(['PUT'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def UploadUserDocuments(request):
     userr = request.user
