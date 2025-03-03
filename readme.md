@@ -57,3 +57,5 @@ Response is returned in **.json** format
     https://atrux-717ecf8763ea.herokuapp.com/replace_document/ -> Replace a document by document_id and the new document [PUT]
     https://atrux-717ecf8763ea.herokuapp.com/create_route/ ->create route [POST]
     https://atrux-717ecf8763ea.herokuapp.com/get_routes ->create route [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/create_driver/ -> create driver(must be authenticated as dispatcher) [POST]
+    https://atrux-717ecf8763ea.herokuapp.com/drivers_number/ -> get the number of drivers of a company [GET]
