@@ -228,3 +228,28 @@ def GetRoutes(request):
             }
             routes_list.append(route_json)
     return Response(routes_list, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createDriver(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        email = request.data.get('email')
+        name = request.data.get('name')
+        password = request.data.get('password')
+        company = userr.company
+        user = User.objects.create_user(email=email, name=name, password=password, company=company, is_driver=True, is_dispatcher=False)
+        user.save()
+        return Response("Driver created", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def numOfDrivers(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        drivers = User.objects.filter(company=userr.company, is_driver=True)
+        return Response(len(drivers), status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)

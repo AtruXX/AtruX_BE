@@ -14,5 +14,7 @@ urlpatterns = [
     path('replace_document/', views.ReplaceDocument),
     path('create_route/', views.CreateRoute),
     path('get_routes/', views.GetRoutes),
+    path('create_driver/', views.createDriver),
+    path("drivers_number/", views.numOfDrivers),
 ]
 
