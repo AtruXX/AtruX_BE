@@ -17,3 +17,20 @@ class Route(models.Model):
     points = models.ManyToManyField(Point)
     date = models.DateField()
 
+class Transport(models.Model):
+    driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_transports')
+    dispatcher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='dispatcher_transports')
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    status_truck = models.CharField(max_length=100)
+    status_truck_text = models.CharField(max_length=255)
+    status_goods = models.CharField(max_length=100)
+    truck_combination = models.CharField(max_length=100)
+    status_coupling = models.CharField(max_length=100)
+    trailer_type = models.CharField(max_length=100)
+    trailer_number = models.CharField(max_length=100)
+    status_trailer_wagon = models.CharField(max_length=100)
+    status_loaded_truck = models.CharField(max_length=100)
+    detraction = models.CharField(max_length=100)
+    status_transport = models.CharField(max_length=100, default='not started')
+    documents = models.JSONField(default=list)
+
