@@ -11,18 +11,11 @@ class Point(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
-class Route(models.Model):
-    driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_routes')
-    dispatcher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='dispatcher_routes')
-    points = models.ManyToManyField(Point)
-    date = models.DateField()
-
 class Transport(models.Model):
     driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_transports')
     dispatcher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='dispatcher_transports')
-    route = models.ForeignKey(Route, on_delete=models.CASCADE)
     status_truck = models.CharField(max_length=100)
-    status_truck_text = models.CharField(max_length=255)
+    status_truck_text = models.CharField(max_length=255, blank=True, null=True)
     status_goods = models.CharField(max_length=100)
     truck_combination = models.CharField(max_length=100)
     status_coupling = models.CharField(max_length=100)
@@ -32,5 +25,15 @@ class Transport(models.Model):
     status_loaded_truck = models.CharField(max_length=100)
     detraction = models.CharField(max_length=100)
     status_transport = models.CharField(max_length=100, default='not started')
-    documents = models.JSONField(default=list)
+
+class Route(models.Model):
+    transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='routes')
+    points = models.ManyToManyField(Point)
+    date = models.DateField()
+
+class TransportDocument(models.Model):
+    title = models.CharField(max_length=100, blank=True, null=True)
+    transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='documents')
+    document = models.FileField(upload_to="transport_documents/", blank=False, null=False)
+    category = models.CharField(max_length=100, blank=True, null=True)
 
