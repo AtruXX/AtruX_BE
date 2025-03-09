@@ -7,7 +7,6 @@ urlpatterns = [
     path('give_rating/', views.GiveRating),
     path('change_status/', views.ChangeStatus),
     path('upload_documents/', views.UploadUserDocuments),
-    path('upload_documents/', views.UploadUserDocuments),
     re_path(r'^get_documents(?:/(?P<category>[^/]+))?/$', views.GetUserDocumentsList),
     path('delete_documents/', views.DeleteUserDocument),
     path('change_title/', views.ChangeDocumentTitle),
@@ -16,5 +15,12 @@ urlpatterns = [
     path('get_routes/', views.GetRoutes),
     path('create_driver/', views.createDriver),
     path("drivers_number/", views.numOfDrivers),
+    #to be tested
+    path("create_transport/", views.createTransport), #tested
+    path("upload_transport_documents/", views.UploadTransportDocuments), #tested
+    path('update_transport/', views.transportUpdate), #tested
+    path('delete_transport_document/', views.deleteTransportDocument), #tested
+    path('list_transports/', views.transportList), #tested
+    path('delete_transport/', views.transportDelete), 
 ]
 
