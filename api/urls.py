@@ -15,7 +15,6 @@ urlpatterns = [
     path('get_routes/', views.GetRoutes),
     path('create_driver/', views.createDriver),
     path("drivers_number/", views.numOfDrivers),
-    #to be tested
     path("create_transport/", views.createTransport), #tested
     path("upload_transport_documents/", views.UploadTransportDocuments), #tested
     path('update_transport/', views.transportUpdate), #tested
