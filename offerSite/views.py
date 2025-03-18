@@ -13,7 +13,7 @@ CREDENTIALS_FILE = json.loads(CREDENTIALS_FILE_json)
 # Conectează-te la Google Sheets
 def connect_to_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDENTIALS_FILE, scope)
     client = gspread.authorize(creds)
     return client.open_by_key(SPREADSHEET_ID).sheet1  # Deschide Sheet1
 
