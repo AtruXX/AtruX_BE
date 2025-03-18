@@ -7,14 +7,14 @@ import os
 import tempfile
 
 # Configurare Google Sheets API
-SPREADSHEET_ID = '1cJXwzEXl6QIAWzZ2tksgCp_8BrfYMXiODH7p3asbxG8'  # ID-ul fișierului tău Google Sheets
-CREDENTIALS_FILE = 'offerSite/offers-454115-2e54df6d665b.json'  # Calea către fișierul JSON descărcat
+SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")  # ID-ul fișierului tău Google Sheets
+CREDENTIALS_FILE_json = os.getenv("CREDENTIALS_FILE")  # Calea către fișierul JSON descărcat
 #CREDENTIALS_FILE = json.loads(CREDENTIALS_FILE_json)
-#with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
-#    temp_file.write(CREDENTIALS_FILE_json)
- #   file_path = temp_file.name  # Salvează calea fișierului
+with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
+    temp_file.write(CREDENTIALS_FILE_json)
+    file_path = temp_file.name  # Salvează calea fișierului
 
-#CREDENTIALS_FILE = file_path
+CREDENTIALS_FILE = file_path
 
 # Conectează-te la Google Sheets
 def connect_to_sheets():
