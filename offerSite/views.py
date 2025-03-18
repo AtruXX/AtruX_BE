@@ -9,7 +9,7 @@ import os
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")  # ID-ul fișierului tău Google Sheets
 CREDENTIALS_FILE_json = os.getenv("CREDENTIALS_FILE")  # Calea către fișierul JSON descărcat
 CREDENTIALS_FILE = json.loads(CREDENTIALS_FILE_json)
-
+CREDENTIALS_FILE["private_key"] = CREDENTIALS_FILE["private_key"].replace("\\n", "\n")
 # Conectează-te la Google Sheets
 def connect_to_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
