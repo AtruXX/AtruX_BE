@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 from . import views
+from offerSite.views import upload_to_google_sheets
 
 urlpatterns = [
     path('get_drivers/', views.GetDrivers),
@@ -20,6 +21,7 @@ urlpatterns = [
     path('update_transport/', views.transportUpdate), #tested
     path('delete_transport_document/', views.deleteTransportDocument), #tested
     path('list_transports/', views.transportList), #tested
-    path('delete_transport/', views.transportDelete), 
+    path('delete_transport/', views.transportDelete),
+    path("upload-google-sheets/", upload_to_google_sheets, name="upload_google_sheets"),
 ]
 
