@@ -10,11 +10,13 @@ import tempfile
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")  # ID-ul fișierului tău Google Sheets
 CREDENTIALS_FILE_json = os.getenv("CREDENTIALS_FILE")  # Calea către fișierul JSON descărcat
 #CREDENTIALS_FILE = json.loads(CREDENTIALS_FILE_json)
-with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
-    temp_file.write(CREDENTIALS_FILE_json)
-    file_path = temp_file.name  # Salvează calea fișierului
+CREDENTIALS_FILE = "/tmp/google_credentials.json"
 
-CREDENTIALS_FILE = file_path
+# Creare doar dacă fișierul nu există
+if not os.path.exists(CREDENTIALS_FILE):
+    with open(CREDENTIALS_FILE, "w") as temp_file:
+        temp_file.write(CREDENTIALS_FILE_json)
+
 
 # Conectează-te la Google Sheets
 def connect_to_sheets():
@@ -34,7 +36,6 @@ def upload_to_google_sheets(request):
 
             sheet = connect_to_sheets()
             sheet.append_row([telefon, email, numar_soferi])
-            os.remove(file_path)  # Șterge fișierul temporar
             return JsonResponse({"message": "Datele au fost salvate în Google Sheets!"}, status=200)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
