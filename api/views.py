@@ -576,8 +576,7 @@ def updateCMR(request):
         return Response("CMR updated successfully", status=200)
     else:
         return Response("You are not authorized to update this CMR", status=403)
-    
-=======
+
 def addTruck(request):
     userr = request.user
     company = userr.company
