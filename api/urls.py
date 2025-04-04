@@ -23,6 +23,9 @@ urlpatterns = [
     path('list_transports/', views.transportList),
     path('delete_transport/', views.transportDelete),
     path("upload-google-sheets/", upload_to_google_sheets, name="upload_google_sheets"),
+    path('add_cmr/', views.addCMR),
+    path('delete_cmr/', views.deleteCMR),
+    path('update_cmr/', views.updateCMR),
     path("add_truck/", views.addTruck),
     path("upload_truck_document/", views.UploadTruckDocuments), #todo
     path("delete_truck/", views.deleteTruck),
