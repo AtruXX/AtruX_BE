@@ -16,15 +16,22 @@ urlpatterns = [
     path('get_routes/', views.GetRoutes),
     path('create_driver/', views.createDriver),
     path("drivers_number/", views.numOfDrivers),
-    path("create_transport/", views.createTransport), #tested
-    path("upload_transport_documents/", views.UploadTransportDocuments), #tested
-    path('update_transport/', views.transportUpdate), #tested
-    path('delete_transport_document/', views.deleteTransportDocument), #tested
-    path('list_transports/', views.transportList), #tested
+    path("create_transport/", views.createTransport),
+    path("upload_transport_documents/", views.UploadTransportDocuments),
+    path('update_transport/', views.transportUpdate),
+    path('delete_transport_document/', views.deleteTransportDocument),
+    path('list_transports/', views.transportList),
     path('delete_transport/', views.transportDelete),
     path("upload-google-sheets/", upload_to_google_sheets, name="upload_google_sheets"),
     path('add_cmr/', views.addCMR),
     path('delete_cmr/', views.deleteCMR),
     path('update_cmr/', views.updateCMR),
+    path("add_truck/", views.addTruck),
+    path("upload_truck_document/", views.UploadTruckDocuments), #todo
+    path("delete_truck/", views.deleteTruck),
+    path("get_trucks/", views.getAllTrucks),
+    path("add_trailer/", views.addTrailer),
+    path("delete_trailer/", views.deleteTrailer),
+    path("get_trailers/", views.getAllTrailers),
 ]
 

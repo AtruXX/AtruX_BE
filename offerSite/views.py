@@ -9,19 +9,20 @@ import tempfile
 # Configurare Google Sheets API
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")  # ID-ul fișierului tău Google Sheets
 CREDENTIALS_FILE_json = os.getenv("CREDENTIALS_FILE")  # Calea către fișierul JSON descărcat
-#CREDENTIALS_FILE = json.loads(CREDENTIALS_FILE_json)
-CREDENTIALS_FILE = "/tmp/google_credentials.json"
+# CREDENTIALS_FILE = json.loads(CREDENTIALS_FILE_json)
+# CREDENTIALS_FILE = "/tmp/google_credentials.json"
+
 
 # Creare doar dacă fișierul nu există
-if not os.path.exists(CREDENTIALS_FILE):
+""" if not os.path.exists(CREDENTIALS_FILE):
     with open(CREDENTIALS_FILE, "w") as temp_file:
-        temp_file.write(CREDENTIALS_FILE_json)
+        temp_file.write(CREDENTIALS_FILE_json) """
 
 
 # Conectează-te la Google Sheets
 def connect_to_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE_json, scope)
     client = gspread.authorize(creds)
     return client.open_by_key(SPREADSHEET_ID).sheet1  # Deschide Sheet1
 

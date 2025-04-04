@@ -4,7 +4,7 @@ from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from accounts.models import User, Driver, Dispatcher, Document
-from base.models import Point, Route, Transport, TransportDocument, CMR
+from base.models import Point, Route, Transport, TransportDocument, Truck, Trailer, TruckDocument, TrailerDocument, CMR
 from datetime import date
 
 @api_view(['GET'])
@@ -272,12 +272,16 @@ def createTransport(request):
         status_loaded_truck = request.data.get('status_loaded_truck')
         detraction = request.data.get('detraction')
         status_transport = request.data.get('status_transport')
+        truck = request.data.get('truck_id')
+        trailer = request.data.get('trailer_id')
 
         driver = User.objects.get(id=driver_id)
 
         transport = Transport.objects.create(
             driver=driver,
             dispatcher=userr,
+            truck=truck,
+            trailer=trailer,
             status_truck=status_truck,
             status_truck_text=status_truck_text,
             status_goods=status_goods,
@@ -332,6 +336,8 @@ def transportUpdate(request):
     status_loaded_truck = request.data.get('status_loaded_truck')
     detraction = request.data.get('detraction')
     status_transport = request.data.get('status_transport')
+    truck = request.data.get('truck_id')
+    trailer = request.data.get('trailer_id')
 
     if status_truck is not None:
             transport.status_truck = status_truck
@@ -355,6 +361,10 @@ def transportUpdate(request):
             transport.detraction = detraction
     if status_transport is not None:
             transport.status_transport = status_transport
+    if truck is not None:
+            transport.truck = truck
+    if trailer is not None:
+            transport.trailer = trailer
 
     transport.save()
     return Response("Transport updated", status=200)
@@ -415,6 +425,8 @@ def transportList(request):
         transport_json = {
             'id': transport.id,
             'driver': transport.driver.id,
+            'truck': transport.truck.id,
+            'trailer': transport.trailer.id,
             'dispatcher': transport.dispatcher.id,
             'route': points_list,
             'route_date': route_list[0].date if route_list.exists() else None, #to be discussed
@@ -565,3 +577,162 @@ def updateCMR(request):
     else:
         return Response("You are not authorized to update this CMR", status=403)
     
+=======
+def addTruck(request):
+    userr = request.user
+    company = userr.company
+    if userr.is_dispatcher:
+        license_plate = request.data.get('license_plate')
+        vin = request.data.get('vin')
+        make = request.data.get('make')
+        model = request.data.get('model')
+        year = request.data.get('year')
+        next_service_date = request.data.get('next_service_date')
+        last_service_date = request.data.get('last_service_date')
+
+        truck = Truck.objects.create(
+            license_plate=license_plate,
+            vin=vin,
+            company=company,
+            make=make,
+            model=model,
+            year=year,
+            next_service_date=next_service_date,
+            last_service_date=last_service_date
+        )
+        truck.save()
+        return Response("Truck added", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def UploadTruckDocuments(request):
+    truck = request.data.get('truck_id')
+    title = request.data.get('title')
+    category = request.data.get('category')
+    document=request.data.get('document')
+    try:
+        truck = Truck.objects.get(id=truck)
+    except Truck.DoesNotExist:
+        return Response("Truck does not exist", status=404)
+
+    if not title:
+        return Response("Title is required", status=400)
+    if document == None:
+        return Response("Document is required", status=400)
+    document = TruckDocument.objects.create(truck=truck, title=title, category=category, document=document)
+    document.save()
+    return Response("Document uploaded", status=200)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteTruck(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        truck_id = request.data.get('truck_id')
+        truck = Truck.objects.get(id=truck_id)
+
+        documents = TruckDocument.objects.filter(truck=truck)
+        for document in documents:
+            document.document.delete(save=False)
+            document.delete()
+
+        truck.delete()
+        return Response("Truck deleted", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllTrucks(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        trucks = Truck.objects.filter(company=userr.company)
+        trucks_list = []
+        for truck in trucks:
+            truck_json = {
+                'id': truck.id,
+                'license_plate': truck.license_plate,
+                'vin': truck.vin,
+                'make': truck.make,
+                'model': truck.model,
+                'year': truck.year,
+                'next_service_date': truck.next_service_date,
+                'last_service_date': truck.last_service_date
+            }
+            trucks_list.append(truck_json)
+        return Response(trucks_list, status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addTrailer(request):
+    userr = request.user
+    company = userr.company
+    if userr.is_dispatcher:
+        license_plate = request.data.get('license_plate')
+        vin = request.data.get('vin')
+        make = request.data.get('make')
+        model = request.data.get('model')
+        year = request.data.get('year')
+        next_service_date = request.data.get('next_service_date')
+        last_service_date = request.data.get('last_service_date')
+
+        trailer = Trailer.objects.create(
+            license_plate=license_plate,
+            vin=vin,
+            company=company,
+            make=make,
+            model=model,
+            year=year,
+            next_service_date=next_service_date,
+            last_service_date=last_service_date
+        )
+        trailer.save()
+        return Response("Trailer added", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteTrailer(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        trailer_id = request.data.get('trailer_id')
+        trailer = Trailer.objects.get(id=trailer_id)
+
+        documents = TrailerDocument.objects.filter(trailer=trailer)
+        for document in documents:
+            document.document.delete(save=False)
+            document.delete()
+
+        trailer.delete()
+        return Response("Trailer deleted", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllTrailers(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        trailers = Trailer.objects.filter(company=userr.company)
+        trailers_list = []
+        for trailer in trailers:
+            trailer_json = {
+                'id': trailer.id,
+                'license_plate': trailer.license_plate,
+                'vin': trailer.vin,
+                'make': trailer.make,
+                'model': trailer.model,
+                'year': trailer.year,
+                'next_service_date': trailer.next_service_date,
+                'last_service_date': trailer.last_service_date
+            }
+            trailers_list.append(trailer_json)
+        return Response(trailers_list, status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
