@@ -4,7 +4,7 @@ from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from accounts.models import User, Driver, Dispatcher, Document
-from base.models import Point, Route, Transport, TransportDocument
+from base.models import Point, Route, Transport, TransportDocument, CMR
 from datetime import date
 
 @api_view(['GET'])
@@ -453,3 +453,115 @@ def transportDelete(request):
         return Response("Transport deleted", status=200)
     else:
         return Response("You are not a dispatcher", status=403)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addCMR(request):
+    userr = request.user
+    if userr.is_dispatcher or userr.is_driver:
+        transport_id = request.data.get('transport_id')
+        driver_id = request.data.get('driver_id')
+        expeditor_nume = request.data.get('expeditor_nume')
+        expeditor_adresa = request.data.get('expeditor_adresa')
+        expeditor_tara = request.data.get('expeditor_tara')
+        destinatar_nume = request.data.get('destinatar_nume')
+        destinatar_adresa = request.data.get('destinatar_adresa')
+        destinatar_tara = request.data.get('destinatar_tara')
+        loc_livrare = request.data.get('loc_livrare')
+        loc_incarcare = request.data.get('loc_incarcare')
+        data_incarcare = request.data.get('data_incarcare')
+        marci_numere = request.data.get('marci_numere')
+        numar_colete = request.data.get('numar_colete')
+        mod_ambalare = request.data.get('mod_ambalare')
+        natura_marfii = request.data.get('natura_marfii')
+        nr_static = request.data.get('nr_static')
+        greutate_bruta = request.data.get('greutate_bruta')
+        cubaj = request.data.get('cubaj')
+        instructiuni_expeditor = request.data.get('instructiuni_expeditor')
+        conventii_speciale = request.data.get('conventii_speciale')
+
+        try:
+            transport = Transport.objects.get(id=transport_id)
+        except Transport.DoesNotExist:
+            return Response("Transport does not exist", status=404)
+
+        try:
+            driver = User.objects.get(id=driver_id)
+        except User.DoesNotExist:
+            return Response("Driver does not exist", status=404)
+
+        cmr = CMR.objects.create(
+            transport=transport,
+            driver=driver,
+            expeditor_nume=expeditor_nume,
+            expeditor_adresa=expeditor_adresa,
+            expeditor_tara=expeditor_tara,
+            destinatar_nume=destinatar_nume,
+            destinatar_adresa=destinatar_adresa,
+            destinatar_tara=destinatar_tara,
+            loc_livrare=loc_livrare,
+            loc_incarcare=loc_incarcare,
+            data_incarcare=data_incarcare,
+            marci_numere=marci_numere,
+            numar_colete=numar_colete,
+            mod_ambalare=mod_ambalare,
+            natura_marfii=natura_marfii,
+            nr_static=nr_static,
+            greutate_bruta=greutate_bruta,
+            cubaj=cubaj,
+            instructiuni_expeditor=instructiuni_expeditor,
+            conventii_speciale=conventii_speciale
+        )
+        cmr.save()
+        return Response("CMR added successfully", status=200)
+    else:
+        return Response("You are not authorized to add a CMR", status=403)
+
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteCMR(request):
+    userr = request.user
+    cmr_id = request.data.get('cmr_id')
+    try:
+        cmr = CMR.objects.get(id=cmr_id)
+    except CMR.DoesNotExist:
+        return Response("CMR does not exist", status=404)
+
+    if cmr.transport.dispatcher == userr or cmr.driver == userr:
+        cmr.delete()
+        return Response("CMR deleted successfully", status=200)
+    else:
+        return Response("You are not authorized to delete this CMR", status=403)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateCMR(request):
+    userr = request.user
+    cmr_id = request.data.get('cmr_id')
+    try:
+        cmr = CMR.objects.get(id=cmr_id)
+    except CMR.DoesNotExist:
+        return Response("CMR does not exist", status=404)
+
+    if cmr.transport.dispatcher == userr or cmr.driver == userr:
+        fields_to_update = [
+            'expeditor_nume', 'expeditor_adresa', 'expeditor_tara',
+            'destinatar_nume', 'destinatar_adresa', 'destinatar_tara',
+            'loc_livrare', 'loc_incarcare', 'data_incarcare',
+            'marci_numere', 'numar_colete', 'mod_ambalare',
+            'natura_marfii', 'nr_static', 'greutate_bruta',
+            'cubaj', 'instructiuni_expeditor', 'conventii_speciale'
+        ]
+
+        for field in fields_to_update:
+            if field in request.data:
+                setattr(cmr, field, request.data.get(field))
+
+        cmr.save()
+        return Response("CMR updated successfully", status=200)
+    else:
+        return Response("You are not authorized to update this CMR", status=403)
+    
