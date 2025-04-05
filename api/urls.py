@@ -33,5 +33,6 @@ urlpatterns = [
     path("add_trailer/", views.addTrailer),
     path("delete_trailer/", views.deleteTrailer),
     path("get_trailers/", views.getAllTrailers),
+    path("latest_n_transports/", views.latestNTransports),
 ]
 
