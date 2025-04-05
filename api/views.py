@@ -505,9 +505,9 @@ def addCMR(request):
                 return Response({"error": "Driver does not exist"}, status=404)
 
         cmr = CMR.objects.create(
-            transport=transport,
-            driver=driver,
-            dispatcher=userr,
+            transport_id=transport,
+            driver_id=driver,
+            dispatcher_id=userr,
             expeditor_nume=expeditor_nume,
             expeditor_adresa=expeditor_adresa,
             expeditor_tara=expeditor_tara,
