@@ -748,6 +748,8 @@ def latestNTransports(request):
         except User.DoesNotExist:
             return Response("Driver does not exist or is not part of your company", status=404)
         transports = Transport.objects.filter(dispatcher=userr, driver=driver).order_by('-id')[:n]
+    elif userr.is_driver:
+        transports = Transport.objects.filter(driver=userr).order_by('-id')[:n]
     else:
         return Response("You are not authorized to view transports", status=403)
 
