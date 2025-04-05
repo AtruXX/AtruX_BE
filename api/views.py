@@ -507,6 +507,7 @@ def addCMR(request):
         cmr = CMR.objects.create(
             transport=transport,
             driver=driver,
+            dispatcher=userr,
             expeditor_nume=expeditor_nume,
             expeditor_adresa=expeditor_adresa,
             expeditor_tara=expeditor_tara,
