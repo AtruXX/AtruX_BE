@@ -738,7 +738,7 @@ def getAllTrailers(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getLatestNTransports(request):
+def latestNTransports(request):
     n = request.data.get('n', 5)  # Default to 5 if 'n' is not provided
     userr = request.user
     if userr.is_dispatcher:
