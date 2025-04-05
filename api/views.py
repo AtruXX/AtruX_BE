@@ -735,3 +735,41 @@ def getAllTrailers(request):
         return Response(trailers_list, status=200)
     else:
         return Response("You are not a dispatcher", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getLatestNTransports(request):
+    n = request.data.get('n', 5)  # Default to 5 if 'n' is not provided
+    userr = request.user
+    if userr.is_dispatcher:
+        driver_id = request.data.get('driver_id')
+        try:
+            driver = User.objects.get(id=driver_id, is_driver=True, company=userr.company)
+        except User.DoesNotExist:
+            return Response("Driver does not exist or is not part of your company", status=404)
+        transports = Transport.objects.filter(dispatcher=userr, driver=driver).order_by('-id')[:n]
+    else:
+        return Response("You are not authorized to view transports", status=403)
+
+    transports_list = []
+    for transport in transports:
+        transport_json = {
+            'id': transport.id,
+            'driver': transport.driver.id,
+            'truck': transport.truck.id,
+            'trailer': transport.trailer.id,
+            'dispatcher': transport.dispatcher.id,
+            'status_truck': transport.status_truck,
+            'status_truck_text': transport.status_truck_text,
+            'status_goods': transport.status_goods,
+            'truck_combination': transport.truck_combination,
+            'status_coupling': transport.status_coupling,
+            'trailer_type': transport.trailer_type,
+            'trailer_number': transport.trailer_number,
+            'status_trailer_wagon': transport.status_trailer_wagon,
+            'status_loaded_truck': transport.status_loaded_truck,
+            'detraction': transport.detraction,
+            'status_transport': transport.status_transport,
+        }
+        transports_list.append(transport_json)
+    return Response(transports_list, status=200)
