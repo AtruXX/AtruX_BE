@@ -739,10 +739,10 @@ def getAllTrailers(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def latestNTransports(request):
-    n = request.data.get('n', 5)  # Default to 5 if 'n' is not provided
+    n = request.query_params.get('n', 5)  # Default to 5 if 'n' is not provided
     userr = request.user
     if userr.is_dispatcher:
-        driver_id = request.data.get('driver_id')
+        driver_id = request.query_params.get('driver_id')
         try:
             driver = User.objects.get(id=driver_id, is_driver=True, company=userr.company)
         except User.DoesNotExist:
