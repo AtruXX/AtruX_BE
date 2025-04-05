@@ -425,8 +425,8 @@ def transportList(request):
         transport_json = {
             'id': transport.id,
             'driver': transport.driver.id,
-            'truck': transport.truck.id,
-            'trailer': transport.trailer.id,
+            'truck': transport.truck.id if transport.truck else None,
+            'trailer': transport.trailer.id if transport.trailer else None,
             'dispatcher': transport.dispatcher.id,
             'route': points_list,
             'route_date': route_list[0].date if route_list.exists() else None, #to be discussed
@@ -756,8 +756,8 @@ def latestNTransports(request):
         transport_json = {
             'id': transport.id,
             'driver': transport.driver.id,
-            'truck': transport.truck.id,
-            'trailer': transport.trailer.id,
+            'truck': transport.truck.id if transport.truck else None,
+            'trailer': transport.trailer.id if transport.trailer else None,
             'dispatcher': transport.dispatcher.id,
             'status_truck': transport.status_truck,
             'status_truck_text': transport.status_truck_text,
