@@ -481,7 +481,13 @@ def addCMR(request):
         destinatar_tara = request.data.get('destinatar_tara')
         loc_livrare = request.data.get('loc_livrare')
         loc_incarcare = request.data.get('loc_incarcare')
+        from datetime import datetime
         data_incarcare = request.data.get('data_incarcare')
+        if data_incarcare:
+            try:
+                data_incarcare = datetime.strptime(data_incarcare, '%d/%m/%Y').date()
+            except ValueError:
+                return Response("Invalid date format for 'data_incarcare'. Expected format: DD/MM/YYYY", status=400)
         marci_numere = request.data.get('marci_numere')
         numar_colete = request.data.get('numar_colete')
         mod_ambalare = request.data.get('mod_ambalare')
