@@ -481,13 +481,7 @@ def addCMR(request):
         destinatar_tara = request.data.get('destinatar_tara')
         loc_livrare = request.data.get('loc_livrare')
         loc_incarcare = request.data.get('loc_incarcare')
-        from datetime import datetime
         data_incarcare = request.data.get('data_incarcare')
-        if data_incarcare:
-            try:
-                data_incarcare = datetime.strptime(data_incarcare, '%d/%m/%Y').date()
-            except ValueError:
-                return Response("Invalid date format for 'data_incarcare'. Expected format: DD/MM/YYYY", status=400)
         marci_numere = request.data.get('marci_numere')
         numar_colete = request.data.get('numar_colete')
         mod_ambalare = request.data.get('mod_ambalare')
@@ -501,12 +495,14 @@ def addCMR(request):
         try:
             transport = Transport.objects.get(id=transport_id)
         except Transport.DoesNotExist:
-            return Response("Transport does not exist", status=404)
+            return Response({"error": "Transport does not exist"}, status=404)
 
-        try:
-            driver = User.objects.get(id=driver_id)
-        except User.DoesNotExist:
-            return Response("Driver does not exist", status=404)
+        driver = None
+        if driver_id:
+            try:
+                driver = User.objects.get(id=driver_id)
+            except User.DoesNotExist:
+                return Response({"error": "Driver does not exist"}, status=404)
 
         cmr = CMR.objects.create(
             transport=transport,
@@ -519,7 +515,7 @@ def addCMR(request):
             destinatar_tara=destinatar_tara,
             loc_livrare=loc_livrare,
             loc_incarcare=loc_incarcare,
-            data_incarcare=data_incarcare,
+            data_incarcare=data_incarcare if data_incarcare else date.today(),
             marci_numere=marci_numere,
             numar_colete=numar_colete,
             mod_ambalare=mod_ambalare,
@@ -531,9 +527,9 @@ def addCMR(request):
             conventii_speciale=conventii_speciale
         )
         cmr.save()
-        return Response("CMR added successfully", status=200)
+        return Response({"message": "CMR added successfully"}, status=200)
     else:
-        return Response("You are not authorized to add a CMR", status=403)
+        return Response({"error": "You are not authorized to add a CMR"}, status=403)
 
 
 
