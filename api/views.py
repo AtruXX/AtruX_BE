@@ -820,3 +820,21 @@ def latestNTransports(request, n, driver_id):
         }
         transports_list.append(transport_json)
     return Response(transports_list, status=200)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def doesCMRExist(request, transport_id):
+    userr = request.user
+    try:
+        transport = Transport.objects.get(id=transport_id)
+    except Transport.DoesNotExist:
+        return Response("Transport does not exist", status=404)
+
+    if userr.is_dispatcher or userr.is_driver:
+        cmr_exists = CMR.objects.filter(transport=transport).exists()
+        if cmr_exists:
+            return Response({"exists": True}, status=200)
+        else:
+            return Response({"exists": False}, status=200)
+    else:
+        return Response("You are not authorized to view CMRs", status=403)
