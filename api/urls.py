@@ -27,7 +27,7 @@ urlpatterns = [
     path('delete_cmr/', views.deleteCMR),
     path('update_cmr/', views.updateCMR),
     path("add_truck/", views.addTruck),
-    path("get_cmrs/", views.getCMR),
+    path("get_cmrs/", views.getCMRByTransport),
     path("upload_truck_document/", views.UploadTruckDocuments), #todo
     path("delete_truck/", views.deleteTruck),
     path("get_trucks/", views.getAllTrucks),

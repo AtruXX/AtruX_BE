@@ -583,12 +583,16 @@ def updateCMR(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getCMR(request):
+def getCMRByTransport(request, transport_id):
     userr = request.user
+    try:
+        transport = Transport.objects.get(id=transport_id)
+    except Transport.DoesNotExist:
+        return Response("Transport does not exist", status=404)
+
     if userr.is_dispatcher or userr.is_driver:
-        cmrs = CMR.objects.filter(dispatcher=userr) | CMR.objects.filter(driver=userr)
-        cmrs_list = []
-        for cmr in cmrs:
+        cmr = CMR.objects.filter(transport=transport).first()
+        if cmr:
             cmr_json = {
                 'id': cmr.id,
                 'transport_id': cmr.transport.id,
@@ -612,8 +616,9 @@ def getCMR(request):
                 'instructiuni_expeditor': cmr.instructiuni_expeditor,
                 'conventii_speciale': cmr.conventii_speciale
             }
-            cmrs_list.append(cmr_json)
-        return Response(cmrs_list, status=200)
+            return Response(cmr_json, status=200)
+        else:
+            return Response("No CMR found for this transport", status=404)
     else:
         return Response("You are not authorized to view CMRs", status=403)
 
