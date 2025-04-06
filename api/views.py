@@ -580,6 +580,43 @@ def updateCMR(request):
     else:
         return Response("You are not authorized to update this CMR", status=403)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getCMR(request):
+    userr = request.user
+    if userr.is_dispatcher or userr.is_driver:
+        cmrs = CMR.objects.filter(dispatcher=userr) | CMR.objects.filter(driver=userr)
+        cmrs_list = []
+        for cmr in cmrs:
+            cmr_json = {
+                'id': cmr.id,
+                'transport_id': cmr.transport.id,
+                'driver_id': cmr.driver.id if cmr.driver else None,
+                'expeditor_nume': cmr.expeditor_nume,
+                'expeditor_adresa': cmr.expeditor_adresa,
+                'expeditor_tara': cmr.expeditor_tara,
+                'destinatar_nume': cmr.destinatar_nume,
+                'destinatar_adresa': cmr.destinatar_adresa,
+                'destinatar_tara': cmr.destinatar_tara,
+                'loc_livrare': cmr.loc_livrare,
+                'loc_incarcare': cmr.loc_incarcare,
+                'data_incarcare': cmr.data_incarcare,
+                'marci_numere': cmr.marci_numere,
+                'numar_colete': cmr.numar_colete,
+                'mod_ambalare': cmr.mod_ambalare,
+                'natura_marfii': cmr.natura_marfii,
+                'nr_static': cmr.nr_static,
+                'greutate_bruta': cmr.greutate_bruta,
+                'cubaj': cmr.cubaj,
+                'instructiuni_expeditor': cmr.instructiuni_expeditor,
+                'conventii_speciale': cmr.conventii_speciale
+            }
+            cmrs_list.append(cmr_json)
+        return Response(cmrs_list, status=200)
+    else:
+        return Response("You are not authorized to view CMRs", status=403)
+
 def addTruck(request):
     userr = request.user
     company = userr.company
