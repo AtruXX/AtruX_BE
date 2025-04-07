@@ -323,7 +323,10 @@ def UploadTransportDocuments(request):
 @permission_classes([IsAuthenticated])
 def transportUpdate(request):
     transport_id = request.data.get('transport_id')
-    transport = Transport.objects.get(id=transport_id)
+    try:
+        transport = Transport.objects.get(id=transport_id)
+    except Transport.DoesNotExist:
+        return Response("Transport does not exist", status=404)
         
     status_truck = request.data.get('status_truck')
     status_truck_text = request.data.get('status_truck_text')
@@ -339,32 +342,25 @@ def transportUpdate(request):
     truck = request.data.get('truck_id')
     trailer = request.data.get('trailer_id')
 
-    if status_truck is not None:
-            transport.status_truck = status_truck
-    if status_goods is not None:
-            transport.status_goods = status_goods
-    if status_truck_text is not None:
-            transport.status_truck_text = status_truck_text
-    if truck_combination is not None:
-            transport.truck_combination = truck_combination
-    if status_coupling is not None:
-            transport.status_coupling = status_coupling
-    if trailer_type is not None:
-            transport.trailer_type = trailer_type
-    if trailer_number is not None:
-            transport.trailer_number = trailer_number
-    if status_trailer_wagon is not None:
-            transport.status_trailer_wagon = status_trailer_wagon
-    if status_loaded_truck is not None:
-            transport.status_loaded_truck = status_loaded_truck
-    if detraction is not None:
-            transport.detraction = detraction
-    if status_transport is not None:
-            transport.status_transport = status_transport
-    if truck is not None:
-            transport.truck = truck
-    if trailer is not None:
-            transport.trailer = trailer
+    fields_to_update = {
+        'status_truck': status_truck,
+        'status_goods': status_goods,
+        'status_truck_text': status_truck_text,
+        'truck_combination': truck_combination,
+        'status_coupling': status_coupling,
+        'trailer_type': trailer_type,
+        'trailer_number': trailer_number,
+        'status_trailer_wagon': status_trailer_wagon,
+        'status_loaded_truck': status_loaded_truck,
+        'detraction': detraction,
+        'status_transport': status_transport,
+        'truck': truck,
+        'trailer': trailer,
+    }
+
+    for field, value in fields_to_update.items():
+        if value is not None:
+            setattr(transport, field, value)
 
     transport.save()
     return Response("Transport updated", status=200)
