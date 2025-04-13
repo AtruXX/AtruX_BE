@@ -72,3 +72,7 @@ Response is returned in **.json** format
     https://atrux-717ecf8763ea.herokuapp.com/add_trailer/ -> add a trailer [POST]
     https://atrux-717ecf8763ea.herokuapp.com/delete_trailer/ -> delete a trailer [DELETE]
     https://atrux-717ecf8763ea.herokuapp.com/get_trailers/ -> get all trailers [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/latest_n_transports/<int:n>/<int:driver_id>/ -> get latest n transports [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/cmr_exists/<int:transport_id>/ -> check if a CMR exists [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/late_transports/ -> get all the transports with status "late" [GET]
+    https://atrux-717ecf8763ea.herokuapp.com/active_transports/ -> get the number of active transports and all the transports that are active [GET]
