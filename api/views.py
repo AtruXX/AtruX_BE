@@ -4,7 +4,7 @@ from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from accounts.models import User, Driver, Dispatcher, Document
-from base.models import Point, Route, Transport, TransportDocument, Truck, Trailer, TruckDocument, TrailerDocument, CMR
+from base.models import Point, Route, Transport, TransportDocument, Truck, Trailer, TruckDocument, TrailerDocument, CMR, GoodsPhoto
 from datetime import date
 
 @api_view(['GET'])
@@ -269,19 +269,35 @@ def createTransport(request):
         trailer_type = request.data.get('trailer_type')
         trailer_number = request.data.get('trailer_number')
         status_trailer_wagon = request.data.get('status_trailer_wagon')
+        status_trailer_wagon_description = request.data.get('status_trailer_wagon_description')
         status_loaded_truck = request.data.get('status_loaded_truck')
         detraction = request.data.get('detraction')
         status_transport = request.data.get('status_transport')
+        delay_estimation = request.data.get('delay_estimation')
         truck = request.data.get('truck_id')
         trailer = request.data.get('trailer_id')
+        goods_photos_ids = request.data.get('goods_photos', [])
 
-        driver = User.objects.get(id=driver_id)
+        try:
+            driver = User.objects.get(id=driver_id)
+        except User.DoesNotExist:
+            return Response("Driver does not exist", status=404)
+
+        try:
+            truck_instance = Truck.objects.get(id=truck) if truck else None
+        except Truck.DoesNotExist:
+            return Response("Truck does not exist", status=404)
+
+        try:
+            trailer_instance = Trailer.objects.get(id=trailer) if trailer else None
+        except Trailer.DoesNotExist:
+            return Response("Trailer does not exist", status=404)
 
         transport = Transport.objects.create(
             driver=driver,
             dispatcher=userr,
-            truck=truck,
-            trailer=trailer,
+            truck=truck_instance,
+            trailer=trailer_instance,
             status_truck=status_truck,
             status_truck_text=status_truck_text,
             status_goods=status_goods,
@@ -290,10 +306,17 @@ def createTransport(request):
             trailer_type=trailer_type,
             trailer_number=trailer_number,
             status_trailer_wagon=status_trailer_wagon,
+            status_trailer_wagon_description=status_trailer_wagon_description,
             status_loaded_truck=status_loaded_truck,
             detraction=detraction,
             status_transport=status_transport,
+            delay_estimation=delay_estimation,
         )
+
+        for photo_file in request.FILES.getlist('goods_photos'):
+            photo = GoodsPhoto.objects.create(photo=photo_file)
+            transport.goods_photos.add(photo)
+
         transport.save()
         return Response("Transport created", status=200)
     else:
@@ -322,12 +345,16 @@ def UploadTransportDocuments(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def transportUpdate(request):
+    userr = request.user
     transport_id = request.data.get('transport_id')
     try:
         transport = Transport.objects.get(id=transport_id)
     except Transport.DoesNotExist:
         return Response("Transport does not exist", status=404)
-        
+
+    if transport.dispatcher != userr:
+        return Response("You are not authorized to update this transport", status=403)
+
     status_truck = request.data.get('status_truck')
     status_truck_text = request.data.get('status_truck_text')
     status_goods = request.data.get('status_goods')
@@ -336,26 +363,40 @@ def transportUpdate(request):
     trailer_type = request.data.get('trailer_type')
     trailer_number = request.data.get('trailer_number')
     status_trailer_wagon = request.data.get('status_trailer_wagon')
+    status_trailer_wagon_description = request.data.get('status_trailer_wagon_description')
     status_loaded_truck = request.data.get('status_loaded_truck')
     detraction = request.data.get('detraction')
     status_transport = request.data.get('status_transport')
+    delay_estimation = request.data.get('delay_estimation')
     truck = request.data.get('truck_id')
     trailer = request.data.get('trailer_id')
 
+    try:
+        truck_instance = Truck.objects.get(id=truck) if truck else None
+    except Truck.DoesNotExist:
+        return Response("Truck does not exist", status=404)
+
+    try:
+        trailer_instance = Trailer.objects.get(id=trailer) if trailer else None
+    except Trailer.DoesNotExist:
+        return Response("Trailer does not exist", status=404)
+
     fields_to_update = {
         'status_truck': status_truck,
-        'status_goods': status_goods,
         'status_truck_text': status_truck_text,
+        'status_goods': status_goods,
         'truck_combination': truck_combination,
         'status_coupling': status_coupling,
         'trailer_type': trailer_type,
         'trailer_number': trailer_number,
         'status_trailer_wagon': status_trailer_wagon,
+        'status_trailer_wagon_description': status_trailer_wagon_description,
         'status_loaded_truck': status_loaded_truck,
         'detraction': detraction,
         'status_transport': status_transport,
-        'truck': truck,
-        'trailer': trailer,
+        'delay_estimation': delay_estimation,
+        'truck': truck_instance,
+        'trailer': trailer_instance,
     }
 
     for field, value in fields_to_update.items():
@@ -392,12 +433,12 @@ def transportList(request):
         route_list = []
         route_points = []
         documents_list = []
+        points_list = []  # Initialize points_list here
         
         route_list = Route.objects.filter(transport=transport)
 
         if route_list.exists():
             for route in route_list:
-                points_list = []
                 route_points = route.points.all()
                 for point in route_points:
                     point_json = {
@@ -834,3 +875,50 @@ def doesCMRExist(request, transport_id):
             return Response({"exists": False}, status=200)
     else:
         return Response("You are not authorized to view CMRs", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def lateTransports(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        late_transports_count = Transport.objects.filter(dispatcher=userr, status_transport='Întârziat').count()
+        return Response(late_transports_count, status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def activeTransports(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        transports_without_cmr = Transport.objects.filter(dispatcher=userr).exclude(cmr__isnull=False)
+        transports_list = []
+        for transport in transports_without_cmr:
+            transport_json = {
+            'id': transport.id,
+            'driver': transport.driver.id,
+            'truck': transport.truck.id if transport.truck else None,
+            'trailer': transport.trailer.id if transport.trailer else None,
+            'dispatcher': transport.dispatcher.id,
+            'status_truck': transport.status_truck,
+            'status_truck_text': transport.status_truck_text,
+            'status_goods': transport.status_goods,
+            'truck_combination': transport.truck_combination,
+            'status_coupling': transport.status_coupling,
+            'trailer_type': transport.trailer_type,
+            'trailer_number': transport.trailer_number,
+            'status_trailer_wagon': transport.status_trailer_wagon,
+            'status_loaded_truck': transport.status_loaded_truck,
+            'detraction': transport.detraction,
+            'status_transport': transport.status_transport,
+            }
+            transports_list.append(transport_json)
+        return Response({"count": len(transports_list), "transports": transports_list}, status=200)
+    else:
+        return Response("You are not authorized to view active transports", status=403)
+    
+
+
+    
+

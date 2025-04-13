@@ -40,6 +40,11 @@ class TrailerDocument(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
     expiration_date = models.DateField(blank=True, null=True)
 
+
+class GoodsPhoto(models.Model):
+    photo = models.ImageField(upload_to="goods_photos/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
 class Transport(models.Model):
     driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_transports')
     dispatcher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='dispatcher_transports')
@@ -53,9 +58,13 @@ class Transport(models.Model):
     trailer_type = models.CharField(max_length=100)
     trailer_number = models.CharField(max_length=100)
     status_trailer_wagon = models.CharField(max_length=100)
+    status_trailer_wagon_description = models.TextField(blank=True, null=True)
     status_loaded_truck = models.CharField(max_length=100)
     detraction = models.CharField(max_length=100)
     status_transport = models.CharField(max_length=100, default='not started')
+    goods_photos = models.ManyToManyField('GoodsPhoto', blank=True)
+    delay_estimation = models.CharField(max_length=100, blank=True, null=True)
+
 
 class Point(models.Model):
     name = models.CharField(max_length=100)
