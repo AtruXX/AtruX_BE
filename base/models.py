@@ -42,7 +42,7 @@ class TrailerDocument(models.Model):
 
 
 class GoodsPhoto(models.Model):
-    photo = models.ImageField(upload_to="goods_photos/")
+    photo = models.FileField(upload_to="goods_photos/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class Transport(models.Model):
