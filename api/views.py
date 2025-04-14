@@ -316,8 +316,9 @@ def createTransport(request):
         for photo_file in request.FILES.getlist('goods_photos'):
             photo = GoodsPhoto.objects.create(photo=photo_file)
             transport.goods_photos.add(photo)
-        driver.on_road = True
-        driver.save()
+        driver_driver = Driver.objects.get(user=driver)
+        driver_driver.on_road = True
+        driver_driver.save()
         transport.save()
         return Response("Transport created", status=200)
     else:
