@@ -316,9 +316,32 @@ def createTransport(request):
         for photo_file in request.FILES.getlist('goods_photos'):
             photo = GoodsPhoto.objects.create(photo=photo_file)
             transport.goods_photos.add(photo)
-
+        driver.on_road = True
+        driver.save()
         transport.save()
         return Response("Transport created", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def driverFree(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        transport_id = request.data.get('transport_id')
+        try:
+            transport = Transport.objects.get(id=transport_id, dispatcher=userr)
+        except Transport.DoesNotExist:
+            return Response("Transport does not exist or you are not the dispatcher", status=404)
+
+        driver = transport.driver
+        if driver:
+            driver_driver = Driver.objects.get(user=driver)
+            driver_driver.on_road = False
+            driver_driver.save()
+            return Response("Driver is now free", status=200)
+        else:
+            return Response("No driver assigned to this transport", status=404)
     else:
         return Response("You are not a dispatcher", status=403)
     

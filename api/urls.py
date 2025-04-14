@@ -38,5 +38,6 @@ urlpatterns = [
     path("cmr_exists/<int:transport_id>/", views.doesCMRExist),
     path("late_transports/", views.lateTransports),
     path("active_transports/", views.activeTransports),
+    path("driver_on_road/", views.driverFree),
 ]
 
