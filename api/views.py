@@ -837,6 +837,14 @@ def latestNTransports(request, n, driver_id):
 
     transports_list = []
     for transport in transports:
+        goods_photos_list = [
+            {
+                'id': photo.id,
+                'url': photo.photo.url,
+                'uploaded_at': photo.uploaded_at
+            }
+            for photo in transport.goods_photos.all()
+        ]
         transport_json = {
             'id': transport.id,
             'driver': transport.driver.id,
@@ -854,6 +862,7 @@ def latestNTransports(request, n, driver_id):
             'status_loaded_truck': transport.status_loaded_truck,
             'detraction': transport.detraction,
             'status_transport': transport.status_transport,
+            'goods_photos': goods_photos_list,
         }
         transports_list.append(transport_json)
     return Response(transports_list, status=200)
