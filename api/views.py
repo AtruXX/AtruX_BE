@@ -925,7 +925,7 @@ def lateTransports(request):
 def activeTransports(request):
     userr = request.user
     if userr.is_dispatcher:
-        transports_without_cmr = Transport.objects.filter(dispatcher=userr).exclude(cmr__isnull=False)
+        transports_without_cmr = Transport.objects.filter(cmr__isnull=True)
         transports_list = []
         for transport in transports_without_cmr:
             transport_json = {
