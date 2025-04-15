@@ -64,6 +64,7 @@ class Transport(models.Model):
     status_transport = models.CharField(max_length=100, default='not started')
     goods_photos = models.ManyToManyField('GoodsPhoto', blank=True)
     delay_estimation = models.CharField(max_length=100, blank=True, null=True)
+    time_estimation = models.CharField(max_length=100, blank=True, null=True)
 
 
 class Point(models.Model):

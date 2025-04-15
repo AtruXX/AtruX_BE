@@ -276,7 +276,7 @@ def createTransport(request):
         delay_estimation = request.data.get('delay_estimation')
         truck = request.data.get('truck_id')
         trailer = request.data.get('trailer_id')
-        goods_photos_ids = request.data.get('goods_photos', [])
+        time_estimation = request.data.get('time_estimation')
 
         try:
             driver = User.objects.get(id=driver_id)
@@ -311,6 +311,7 @@ def createTransport(request):
             detraction=detraction,
             status_transport=status_transport,
             delay_estimation=delay_estimation,
+            time_estimation=time_estimation,
         )
 
         for photo_file in request.FILES.getlist('goods_photos'):
@@ -394,6 +395,7 @@ def transportUpdate(request):
     delay_estimation = request.data.get('delay_estimation')
     truck = request.data.get('truck_id')
     trailer = request.data.get('trailer_id')
+    time_estimation = request.data.get('time_estimation')
 
     try:
         truck_instance = Truck.objects.get(id=truck) if truck else None
@@ -421,6 +423,7 @@ def transportUpdate(request):
         'delay_estimation': delay_estimation,
         'truck': truck_instance,
         'trailer': trailer_instance,
+        'time_estimation': time_estimation,
     }
 
     for field, value in fields_to_update.items():
@@ -953,5 +956,4 @@ def activeTransports(request):
     
 
 
-    
 
