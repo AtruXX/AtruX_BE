@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'djoser',
     'base',
     'accounts',
+    'transports',
+    'vehicles',
 ]
 
 REST_FRAMEWORK = {

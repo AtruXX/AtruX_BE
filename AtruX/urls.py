@@ -25,4 +25,6 @@ urlpatterns = [
     path(url_version + 'auth/', include('djoser.urls')),
     path(url_version + 'auth/', include('djoser.urls.authtoken')),
     path(url_version, include('accounts.urls')),
+    path(url_version, include('vehicles.urls')),
+    # path(url_version, include('transports.urls')),
 ]

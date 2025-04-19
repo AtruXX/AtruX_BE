@@ -1,4 +1,4 @@
-from rest_framework.response import Response
+""" from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
@@ -957,3 +957,4 @@ def activeTransports(request):
 
 
 
+ """

@@ -38,7 +38,10 @@ def GetAllDrivers(request):
     if userr.is_dispatcher:
         drivers = User.objects.filter(company=userr.company, is_driver=True)
         serializer = UserSerializer(drivers, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            "number_of_drivers": drivers.count(),
+            "drivers": serializer.data
+        }, status=status.HTTP_200_OK)
     else:
         return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
     
@@ -99,7 +102,6 @@ def DocumentUpload(request):
     data = request.data
     data['user'] = userr.id
     serializer = DocumentSerializer(data=data)
-    print(data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
