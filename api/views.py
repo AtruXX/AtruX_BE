@@ -276,7 +276,7 @@ def createTransport(request):
         delay_estimation = request.data.get('delay_estimation')
         truck = request.data.get('truck_id')
         trailer = request.data.get('trailer_id')
-        goods_photos_ids = request.data.get('goods_photos', [])
+        time_estimation = request.data.get('time_estimation')
 
         try:
             driver = User.objects.get(id=driver_id)
@@ -311,14 +311,39 @@ def createTransport(request):
             detraction=detraction,
             status_transport=status_transport,
             delay_estimation=delay_estimation,
+            time_estimation=time_estimation,
         )
 
         for photo_file in request.FILES.getlist('goods_photos'):
             photo = GoodsPhoto.objects.create(photo=photo_file)
             transport.goods_photos.add(photo)
-
+        driver_driver = Driver.objects.get(user=driver)
+        driver_driver.on_road = True
+        driver_driver.save()
         transport.save()
         return Response("Transport created", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def driverFree(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        transport_id = request.data.get('transport_id')
+        try:
+            transport = Transport.objects.get(id=transport_id, dispatcher=userr)
+        except Transport.DoesNotExist:
+            return Response("Transport does not exist or you are not the dispatcher", status=404)
+
+        driver = transport.driver
+        if driver:
+            driver_driver = Driver.objects.get(user=driver)
+            driver_driver.on_road = False
+            driver_driver.save()
+            return Response("Driver is now free", status=200)
+        else:
+            return Response("No driver assigned to this transport", status=404)
     else:
         return Response("You are not a dispatcher", status=403)
     
@@ -370,6 +395,7 @@ def transportUpdate(request):
     delay_estimation = request.data.get('delay_estimation')
     truck = request.data.get('truck_id')
     trailer = request.data.get('trailer_id')
+    time_estimation = request.data.get('time_estimation')
 
     try:
         truck_instance = Truck.objects.get(id=truck) if truck else None
@@ -397,6 +423,7 @@ def transportUpdate(request):
         'delay_estimation': delay_estimation,
         'truck': truck_instance,
         'trailer': trailer_instance,
+        'time_estimation': time_estimation,
     }
 
     for field, value in fields_to_update.items():
@@ -837,6 +864,14 @@ def latestNTransports(request, n, driver_id):
 
     transports_list = []
     for transport in transports:
+        goods_photos_list = [
+            {
+                'id': photo.id,
+                'url': photo.photo.url,
+                'uploaded_at': photo.uploaded_at
+            }
+            for photo in transport.goods_photos.all()
+        ]
         transport_json = {
             'id': transport.id,
             'driver': transport.driver.id,
@@ -854,6 +889,7 @@ def latestNTransports(request, n, driver_id):
             'status_loaded_truck': transport.status_loaded_truck,
             'detraction': transport.detraction,
             'status_transport': transport.status_transport,
+            'goods_photos': goods_photos_list,
         }
         transports_list.append(transport_json)
     return Response(transports_list, status=200)
@@ -892,7 +928,7 @@ def lateTransports(request):
 def activeTransports(request):
     userr = request.user
     if userr.is_dispatcher:
-        transports_without_cmr = Transport.objects.filter(dispatcher=userr).exclude(cmr__isnull=False)
+        transports_without_cmr = Transport.objects.filter(cmrs__isnull=True)
         transports_list = []
         for transport in transports_without_cmr:
             transport_json = {
@@ -920,5 +956,4 @@ def activeTransports(request):
     
 
 
-    
 
