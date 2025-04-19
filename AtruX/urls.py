@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+url_version = 'api/v0.1/'
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('api.urls')),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
-    path('', include('accounts.urls')),
+    path(url_version + 'admin/', admin.site.urls),
+    path(url_version, include('api.urls')),
+    path(url_version + 'auth/', include('djoser.urls')),
+    path(url_version + 'auth/', include('djoser.urls.authtoken')),
+    path(url_version, include('accounts.urls')),
 ]
