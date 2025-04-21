@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User, Driver, Document
 from rest_framework.response import Response
@@ -99,7 +98,7 @@ def ChangeStatus(request):
 
 def DocumentUpload(request):
     userr = request.user
-    data = request.data
+    data = request.data.copy()
     data['user'] = userr.id
     serializer = DocumentSerializer(data=data)
     if serializer.is_valid():
@@ -109,7 +108,6 @@ def DocumentUpload(request):
 
 def GetUserDocuments(request, category):
     userr = request.user
-    print(category)
     if category:
         documents = Document.objects.filter(user=userr, category=category)
     else:
