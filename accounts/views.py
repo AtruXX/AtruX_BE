@@ -5,6 +5,7 @@ from accounts.models import User, Driver, Document
 from rest_framework.response import Response
 from .serializers import UserSerializer, DocumentSerializer
 from rest_framework import status
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 
 """ PAGES """
 
@@ -30,6 +31,11 @@ def reset_pass_ok(request):
 
 """ API VIEWS """
 
+@extend_schema(
+    responses=UserSerializer(many=True),
+    tags=["accounts"],
+    summary="Retrieve a specific driver by ID",
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def GetAllDrivers(request):
@@ -43,7 +49,7 @@ def GetAllDrivers(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
-    
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def GetDriver(request, id):
@@ -126,7 +132,7 @@ def DeleteUserDocument(request, id):
         return Response("Document deleted", status=status.HTTP_200_OK)
     except Document.DoesNotExist:
         return Response("Document not found", status=status.HTTP_404_NOT_FOUND)    
-    
+
 def UpdateDocument(request, id):
     userr = request.user
     try:
