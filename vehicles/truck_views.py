@@ -136,7 +136,7 @@ def UpdateDocument(request, document_id):
 @permission_classes([IsAuthenticated])
 def DocumentViews(request, id=None):
     if request.method == 'GET':
-        return GetTruckDocument(request._request, id, request.GET.get("category"))
+        return GetTruckDocument(request._request, id, request.query_params.get("category"))
     elif request.method == 'POST':
         return DocumentUpload(request, id)
     elif request.method == 'PATCH':

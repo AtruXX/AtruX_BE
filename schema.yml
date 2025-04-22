@@ -472,24 +472,17 @@ paths:
           description: ''
   /api/v0.1/drivers/:
     get:
-      operationId: api_v0.1_drivers_list
-      summary: Retrieve a specific driver by ID
+      operationId: api_v0.1_drivers_retrieve
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-          description: ''
+          description: No response body
   /api/v0.1/drivers/{id}:
     get:
-      operationId: api_v0.1_drivers_retrieve
+      operationId: api_v0.1_drivers_retrieve_2
       parameters:
       - in: path
         name: id
@@ -505,105 +498,44 @@ paths:
           description: No response body
   /api/v0.1/personal-documents/:
     get:
-      operationId: api_v0.1_personal_documents_list
-      description: Fetch documents for the authenticated user. You can optionally
-        filter by document category.
-      summary: List user documents
-      parameters:
-      - in: query
-        name: category
-        schema:
-          type: string
-        description: Optional category filter for the user's documents.
+      operationId: api_v0.1_personal_documents_retrieve
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     post:
       operationId: api_v0.1_personal_documents_create
-      description: Allows an authenticated user to upload a document. Automatically
-        assigns the document to the user.
-      summary: Upload a new document
       tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Document'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Document'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Document'
-        required: true
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     patch:
       operationId: api_v0.1_personal_documents_partial_update
-      description: Allows the owner of a document to update its details or file.
-      summary: Update a document
       tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     delete:
       operationId: api_v0.1_personal_documents_destroy
-      description: Deletes the document if it belongs to the current authenticated
-        user.
-      summary: Delete a user document
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
-        '200':
-          description: Document deleted
-        '403':
-          description: You are not the owner of this document
-        '404':
-          description: Document not found
+        '204':
+          description: No response body
   /api/v0.1/personal-documents/{category}/:
     get:
-      operationId: api_v0.1_personal_documents_list_2
-      description: Fetch documents for the authenticated user. You can optionally
-        filter by document category.
-      summary: List user documents
+      operationId: api_v0.1_personal_documents_retrieve_2
       parameters:
       - in: path
         name: category
@@ -611,29 +543,15 @@ paths:
           type: string
           pattern: ^[^/]+$
         required: true
-      - in: query
-        name: category
-        schema:
-          type: string
-        description: Optional category filter for the user's documents.
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     post:
       operationId: api_v0.1_personal_documents_create_2
-      description: Allows an authenticated user to upload a document. Automatically
-        assigns the document to the user.
-      summary: Upload a new document
       parameters:
       - in: path
         name: category
@@ -642,32 +560,14 @@ paths:
           pattern: ^[^/]+$
         required: true
       tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Document'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Document'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Document'
-        required: true
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     patch:
       operationId: api_v0.1_personal_documents_partial_update_2
-      description: Allows the owner of a document to update its details or file.
-      summary: Update a document
       parameters:
       - in: path
         name: category
@@ -676,32 +576,14 @@ paths:
           pattern: ^[^/]+$
         required: true
       tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     delete:
       operationId: api_v0.1_personal_documents_destroy_2
-      description: Deletes the document if it belongs to the current authenticated
-        user.
-      summary: Delete a user document
       parameters:
       - in: path
         name: category
@@ -710,51 +592,30 @@ paths:
           pattern: ^[^/]+$
         required: true
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
-        '200':
-          description: Document deleted
-        '403':
-          description: You are not the owner of this document
-        '404':
-          description: Document not found
+        '204':
+          description: No response body
   /api/v0.1/personal-documents/{id}:
     get:
-      operationId: api_v0.1_personal_documents_list_3
-      description: Fetch documents for the authenticated user. You can optionally
-        filter by document category.
-      summary: List user documents
+      operationId: api_v0.1_personal_documents_retrieve_3
       parameters:
-      - in: query
-        name: category
-        schema:
-          type: string
-        description: Optional category filter for the user's documents.
       - in: path
         name: id
         schema:
           type: integer
         required: true
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     post:
       operationId: api_v0.1_personal_documents_create_3
-      description: Allows an authenticated user to upload a document. Automatically
-        assigns the document to the user.
-      summary: Upload a new document
       parameters:
       - in: path
         name: id
@@ -762,32 +623,14 @@ paths:
           type: integer
         required: true
       tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Document'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Document'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Document'
-        required: true
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     patch:
       operationId: api_v0.1_personal_documents_partial_update_3
-      description: Allows the owner of a document to update its details or file.
-      summary: Update a document
       parameters:
       - in: path
         name: id
@@ -795,32 +638,14 @@ paths:
           type: integer
         required: true
       tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedDocument'
+      - api
       security:
       - tokenAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
-          description: ''
+          description: No response body
     delete:
       operationId: api_v0.1_personal_documents_destroy_3
-      description: Deletes the document if it belongs to the current authenticated
-        user.
-      summary: Delete a user document
       parameters:
       - in: path
         name: id
@@ -828,16 +653,12 @@ paths:
           type: integer
         required: true
       tags:
-      - accounts
+      - api
       security:
       - tokenAuth: []
       responses:
-        '200':
-          description: Document deleted
-        '403':
-          description: You are not the owner of this document
-        '404':
-          description: Document not found
+        '204':
+          description: No response body
   /api/v0.1/profile/:
     get:
       operationId: api_v0.1_profile_retrieve
@@ -1138,50 +959,6 @@ components:
       required:
       - token
       - uid
-    Dispatcher:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        user:
-          type: integer
-      required:
-      - id
-      - user
-    Document:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        title:
-          type: string
-          nullable: true
-          maxLength: 100
-        document:
-          type: string
-          format: uri
-          nullable: true
-        category:
-          type: string
-          nullable: true
-          maxLength: 100
-        user:
-          type: integer
-      required:
-      - id
-      - user
-    Driver:
-      type: object
-      properties:
-        average_rating:
-          type: string
-          readOnly: true
-        on_road:
-          type: boolean
-      required:
-      - average_rating
     PasswordResetConfirmRetype:
       type: object
       properties:
@@ -1198,26 +975,6 @@ components:
       - re_new_password
       - token
       - uid
-    PatchedDocument:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        title:
-          type: string
-          nullable: true
-          maxLength: 100
-        document:
-          type: string
-          format: uri
-          nullable: true
-        category:
-          type: string
-          nullable: true
-          maxLength: 100
-        user:
-          type: integer
     PatchedUserCreateSerializerr:
       type: object
       properties:
@@ -1283,49 +1040,6 @@ components:
           type: string
         email:
           type: string
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        driver:
-          $ref: '#/components/schemas/Driver'
-        dispatcher:
-          $ref: '#/components/schemas/Dispatcher'
-        password:
-          type: string
-          maxLength: 128
-        last_login:
-          type: string
-          format: date-time
-          nullable: true
-        email:
-          type: string
-          format: email
-          title: Email address
-          maxLength: 255
-        name:
-          type: string
-          maxLength: 100
-        is_active:
-          type: boolean
-        is_admin:
-          type: boolean
-        is_dispatcher:
-          type: boolean
-        is_driver:
-          type: boolean
-        company:
-          type: string
-      required:
-      - company
-      - dispatcher
-      - driver
-      - email
-      - id
-      - name
-      - password
     UserCreatePasswordRetype:
       type: object
       properties:

@@ -5,7 +5,6 @@ from accounts.models import User, Driver, Document
 from rest_framework.response import Response
 from .serializers import UserSerializer, DocumentSerializer
 from rest_framework import status
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 
 """ PAGES """
 
@@ -31,11 +30,6 @@ def reset_pass_ok(request):
 
 """ API VIEWS """
 
-@extend_schema(
-    responses=UserSerializer(many=True),
-    tags=["accounts"],
-    summary="Retrieve a specific driver by ID",
-)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def GetAllDrivers(request):
@@ -154,7 +148,7 @@ def DocumentViews(request, id=None):
     if request.method == 'POST':
         return DocumentUpload(request)
     elif request.method == 'GET':
-        return GetUserDocuments(request._request, request.GET.get("category"))
+        return GetUserDocuments(request._request, request.query_params.get("category"))
     elif request.method == 'DELETE':
         return DeleteUserDocument(request, id)
     elif request.method == 'PATCH':

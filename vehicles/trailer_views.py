@@ -138,7 +138,7 @@ def UpdateTrailerDocument(request, document_id):
 @permission_classes([IsAuthenticated])
 def TrailerDocumentViews(request, id=None):
     if request.method == 'GET':
-        return GetTrailerDocument(request._request, id, request.GET.get("category"))
+        return GetTrailerDocument(request._request, id, request.query_params.get("category"))
     elif request.method == 'POST':
         return DocumentUpload(request, id)
     elif request.method == 'PATCH':
