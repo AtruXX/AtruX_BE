@@ -1,32 +1,35 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from vehicles.models import Truck, Trailer
+from base.models import Company
 
 class GoodsPhoto(models.Model):
     photo = models.FileField(upload_to="goods_photos/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class Transport(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True, related_name='transports')
     driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_transports')
     dispatcher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='dispatcher_transports')
     truck = models.ForeignKey(Truck, on_delete=models.CASCADE, related_name='transports', null=True, blank=True)
     trailer = models.ForeignKey(Trailer, on_delete=models.CASCADE, related_name='transports', null=True, blank=True)
-    status_truck = models.CharField(max_length=100)
+    status_truck = models.CharField(max_length=100, default='ok')
     status_truck_text = models.CharField(max_length=255, blank=True, null=True)
-    status_goods = models.CharField(max_length=100)
+    status_goods = models.CharField(max_length=100, default='ok')
     truck_combination = models.CharField(max_length=100)
-    status_coupling = models.CharField(max_length=100)
+    status_coupling = models.CharField(max_length=100, default='ok')
     trailer_type = models.CharField(max_length=100)
     trailer_number = models.CharField(max_length=100)
-    status_trailer_wagon = models.CharField(max_length=100)
+    status_trailer_wagon = models.CharField(max_length=100, default='ok')
     status_trailer_wagon_description = models.TextField(blank=True, null=True)
-    status_loaded_truck = models.CharField(max_length=100)
+    status_loaded_truck = models.CharField(max_length=100, default='ok')
     detraction = models.CharField(max_length=100)
     status_transport = models.CharField(max_length=100, default='not started')
     goods_photos = models.ManyToManyField('GoodsPhoto', blank=True)
-    delay_estimation = models.CharField(max_length=100, blank=True, null=True)
-    time_estimation = models.CharField(max_length=100, blank=True, null=True)
-
+    delay_estimation = models.DurationField(max_length=100, blank=True, null=True)
+    time_estimation = models.DateTimeField(max_length=100, blank=True, null=True)
+    origin_city = models.CharField(max_length=100, blank=True, null=True)
+    destination_city = models.CharField(max_length=100, blank=True, null=True)
 
 class Point(models.Model):
     name = models.CharField(max_length=100)

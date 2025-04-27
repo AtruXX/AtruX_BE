@@ -27,7 +27,7 @@ urlpatterns = [
     path(url_version + 'auth/', include('djoser.urls.authtoken')),
     path(url_version, include('accounts.urls')),
     path(url_version, include('vehicles.urls')),
-    # path(url_version, include('transports.urls')),
+    path(url_version, include('transports.urls')),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
