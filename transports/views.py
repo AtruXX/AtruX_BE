@@ -15,8 +15,13 @@ def IsUserAssignedToTransport(user, transport):
 
 def GetAllTransports(request):
     user = request.user
+    driver_id = request.query_params.get("driver")
+
     if user.is_dispatcher:
-        transports = Transport.objects.filter(company=user.company)
+        if driver_id:
+            transports = Transport.objects.filter(company=user.company, driver=driver_id)
+        else:
+            transports = Transport.objects.filter(company=user.company)
     else:
         transports = Transport.objects.filter(company=user.company, driver=user)
     serializer = TransportSerializer(transports, many=True)
@@ -210,7 +215,7 @@ def CreateRoute(request, id):
 
     serializer = RouteSerializer(data=data)
     if serializer.is_valid():
-        route = serializer.save(transport=transport, date=date.today())    
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

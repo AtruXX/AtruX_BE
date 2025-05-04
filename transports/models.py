@@ -32,15 +32,15 @@ class Transport(models.Model):
     destination_city = models.CharField(max_length=100)
     goods_type = models.CharField(max_length=100)
 
+class Route(models.Model):
+    transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='routes')
+    date = models.DateField()
+
 class Point(models.Model):
+    route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='points')
     name = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
-
-class Route(models.Model):
-    transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='routes')
-    points = models.ManyToManyField(Point)
-    date = models.DateField()
 
 class TransportDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)

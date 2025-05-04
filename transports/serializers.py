@@ -23,7 +23,7 @@ class TransportDocumentSerializer(serializers.ModelSerializer):
 class PointSerializer(serializers.ModelSerializer):
     class Meta:
         model = Point
-        fields = '__all__'
+        fields = ['name', 'latitude', 'longitude']
 
 class RouteSerializer(serializers.ModelSerializer):
     points = PointSerializer(many=True)
@@ -31,4 +31,12 @@ class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = '__all__'
+
+    def create(self, validated_data):
+        points_data = validated_data.pop('points')
+        route = Route.objects.create(**validated_data)
+        for point_data in points_data:
+            Point.objects.create(route=route, **point_data)
+        return route
+        
         
