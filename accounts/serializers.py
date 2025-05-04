@@ -32,10 +32,14 @@ class DispatcherSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     driver = DriverSerializer()
     dispatcher = DispatcherSerializer()
+    company = serializers.SerializerMethodField(source='company')
     
     class Meta:
         model = User
         exclude = ["password"]
+
+    def get_company(self, obj):
+        return obj.company.name
 
     def assign_serializer(self, obj):
         if obj.is_driver:
