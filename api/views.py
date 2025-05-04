@@ -1,10 +1,10 @@
-from rest_framework.response import Response
+""" from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from accounts.serializers import UserCreateSerializerr
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from accounts.models import User, Driver, Dispatcher, Document
-from base.models import Point, Route, Transport, TransportDocument
+from base.models import Point, Route, Transport, TransportDocument, Truck, Trailer, TruckDocument, TrailerDocument, CMR, GoodsPhoto
 from datetime import date
 
 @api_view(['GET'])
@@ -269,15 +269,35 @@ def createTransport(request):
         trailer_type = request.data.get('trailer_type')
         trailer_number = request.data.get('trailer_number')
         status_trailer_wagon = request.data.get('status_trailer_wagon')
+        status_trailer_wagon_description = request.data.get('status_trailer_wagon_description')
         status_loaded_truck = request.data.get('status_loaded_truck')
         detraction = request.data.get('detraction')
         status_transport = request.data.get('status_transport')
+        delay_estimation = request.data.get('delay_estimation')
+        truck = request.data.get('truck_id')
+        trailer = request.data.get('trailer_id')
+        time_estimation = request.data.get('time_estimation')
 
-        driver = User.objects.get(id=driver_id)
+        try:
+            driver = User.objects.get(id=driver_id)
+        except User.DoesNotExist:
+            return Response("Driver does not exist", status=404)
+
+        try:
+            truck_instance = Truck.objects.get(id=truck) if truck else None
+        except Truck.DoesNotExist:
+            return Response("Truck does not exist", status=404)
+
+        try:
+            trailer_instance = Trailer.objects.get(id=trailer) if trailer else None
+        except Trailer.DoesNotExist:
+            return Response("Trailer does not exist", status=404)
 
         transport = Transport.objects.create(
             driver=driver,
             dispatcher=userr,
+            truck=truck_instance,
+            trailer=trailer_instance,
             status_truck=status_truck,
             status_truck_text=status_truck_text,
             status_goods=status_goods,
@@ -286,12 +306,44 @@ def createTransport(request):
             trailer_type=trailer_type,
             trailer_number=trailer_number,
             status_trailer_wagon=status_trailer_wagon,
+            status_trailer_wagon_description=status_trailer_wagon_description,
             status_loaded_truck=status_loaded_truck,
             detraction=detraction,
             status_transport=status_transport,
+            delay_estimation=delay_estimation,
+            time_estimation=time_estimation,
         )
+
+        for photo_file in request.FILES.getlist('goods_photos'):
+            photo = GoodsPhoto.objects.create(photo=photo_file)
+            transport.goods_photos.add(photo)
+        driver_driver = Driver.objects.get(user=driver)
+        driver_driver.on_road = True
+        driver_driver.save()
         transport.save()
         return Response("Transport created", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def driverFree(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        transport_id = request.data.get('transport_id')
+        try:
+            transport = Transport.objects.get(id=transport_id, dispatcher=userr)
+        except Transport.DoesNotExist:
+            return Response("Transport does not exist or you are not the dispatcher", status=404)
+
+        driver = transport.driver
+        if driver:
+            driver_driver = Driver.objects.get(user=driver)
+            driver_driver.on_road = False
+            driver_driver.save()
+            return Response("Driver is now free", status=200)
+        else:
+            return Response("No driver assigned to this transport", status=404)
     else:
         return Response("You are not a dispatcher", status=403)
     
@@ -318,9 +370,16 @@ def UploadTransportDocuments(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def transportUpdate(request):
+    userr = request.user
     transport_id = request.data.get('transport_id')
-    transport = Transport.objects.get(id=transport_id)
-        
+    try:
+        transport = Transport.objects.get(id=transport_id)
+    except Transport.DoesNotExist:
+        return Response("Transport does not exist", status=404)
+
+    if transport.dispatcher != userr:
+        return Response("You are not authorized to update this transport", status=403)
+
     status_truck = request.data.get('status_truck')
     status_truck_text = request.data.get('status_truck_text')
     status_goods = request.data.get('status_goods')
@@ -329,32 +388,47 @@ def transportUpdate(request):
     trailer_type = request.data.get('trailer_type')
     trailer_number = request.data.get('trailer_number')
     status_trailer_wagon = request.data.get('status_trailer_wagon')
+    status_trailer_wagon_description = request.data.get('status_trailer_wagon_description')
     status_loaded_truck = request.data.get('status_loaded_truck')
     detraction = request.data.get('detraction')
     status_transport = request.data.get('status_transport')
+    delay_estimation = request.data.get('delay_estimation')
+    truck = request.data.get('truck_id')
+    trailer = request.data.get('trailer_id')
+    time_estimation = request.data.get('time_estimation')
 
-    if status_truck is not None:
-            transport.status_truck = status_truck
-    if status_goods is not None:
-            transport.status_goods = status_goods
-    if status_truck_text is not None:
-            transport.status_truck_text = status_truck_text
-    if truck_combination is not None:
-            transport.truck_combination = truck_combination
-    if status_coupling is not None:
-            transport.status_coupling = status_coupling
-    if trailer_type is not None:
-            transport.trailer_type = trailer_type
-    if trailer_number is not None:
-            transport.trailer_number = trailer_number
-    if status_trailer_wagon is not None:
-            transport.status_trailer_wagon = status_trailer_wagon
-    if status_loaded_truck is not None:
-            transport.status_loaded_truck = status_loaded_truck
-    if detraction is not None:
-            transport.detraction = detraction
-    if status_transport is not None:
-            transport.status_transport = status_transport
+    try:
+        truck_instance = Truck.objects.get(id=truck) if truck else None
+    except Truck.DoesNotExist:
+        return Response("Truck does not exist", status=404)
+
+    try:
+        trailer_instance = Trailer.objects.get(id=trailer) if trailer else None
+    except Trailer.DoesNotExist:
+        return Response("Trailer does not exist", status=404)
+
+    fields_to_update = {
+        'status_truck': status_truck,
+        'status_truck_text': status_truck_text,
+        'status_goods': status_goods,
+        'truck_combination': truck_combination,
+        'status_coupling': status_coupling,
+        'trailer_type': trailer_type,
+        'trailer_number': trailer_number,
+        'status_trailer_wagon': status_trailer_wagon,
+        'status_trailer_wagon_description': status_trailer_wagon_description,
+        'status_loaded_truck': status_loaded_truck,
+        'detraction': detraction,
+        'status_transport': status_transport,
+        'delay_estimation': delay_estimation,
+        'truck': truck_instance,
+        'trailer': trailer_instance,
+        'time_estimation': time_estimation,
+    }
+
+    for field, value in fields_to_update.items():
+        if value is not None:
+            setattr(transport, field, value)
 
     transport.save()
     return Response("Transport updated", status=200)
@@ -386,12 +460,12 @@ def transportList(request):
         route_list = []
         route_points = []
         documents_list = []
+        points_list = []  # Initialize points_list here
         
         route_list = Route.objects.filter(transport=transport)
 
         if route_list.exists():
             for route in route_list:
-                points_list = []
                 route_points = route.points.all()
                 for point in route_points:
                     point_json = {
@@ -415,6 +489,8 @@ def transportList(request):
         transport_json = {
             'id': transport.id,
             'driver': transport.driver.id,
+            'truck': transport.truck.id if transport.truck else None,
+            'trailer': transport.trailer.id if transport.trailer else None,
             'dispatcher': transport.dispatcher.id,
             'route': points_list,
             'route_date': route_list[0].date if route_list.exists() else None, #to be discussed
@@ -453,3 +529,432 @@ def transportDelete(request):
         return Response("Transport deleted", status=200)
     else:
         return Response("You are not a dispatcher", status=403)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addCMR(request):
+    userr = request.user
+    if userr.is_dispatcher or userr.is_driver:
+        transport_id = request.data.get('transport_id')
+        driver_id = request.data.get('driver_id')
+        expeditor_nume = request.data.get('expeditor_nume')
+        expeditor_adresa = request.data.get('expeditor_adresa')
+        expeditor_tara = request.data.get('expeditor_tara')
+        destinatar_nume = request.data.get('destinatar_nume')
+        destinatar_adresa = request.data.get('destinatar_adresa')
+        destinatar_tara = request.data.get('destinatar_tara')
+        loc_livrare = request.data.get('loc_livrare')
+        loc_incarcare = request.data.get('loc_incarcare')
+        data_incarcare = request.data.get('data_incarcare')
+        marci_numere = request.data.get('marci_numere')
+        numar_colete = request.data.get('numar_colete')
+        mod_ambalare = request.data.get('mod_ambalare')
+        natura_marfii = request.data.get('natura_marfii')
+        nr_static = request.data.get('nr_static')
+        greutate_bruta = request.data.get('greutate_bruta')
+        cubaj = request.data.get('cubaj')
+        instructiuni_expeditor = request.data.get('instructiuni_expeditor')
+        conventii_speciale = request.data.get('conventii_speciale')
+
+        try:
+            transport = Transport.objects.get(id=transport_id)
+        except Transport.DoesNotExist:
+            return Response({"error": "Transport does not exist"}, status=404)
+
+        driver = None
+        if driver_id:
+            try:
+                driver = User.objects.get(id=driver_id)
+            except User.DoesNotExist:
+                return Response({"error": "Driver does not exist"}, status=404)
+
+        cmr = CMR.objects.create(
+            transport=transport,
+            driver=driver,
+            dispatcher=userr,
+            expeditor_nume=expeditor_nume,
+            expeditor_adresa=expeditor_adresa,
+            expeditor_tara=expeditor_tara,
+            destinatar_nume=destinatar_nume,
+            destinatar_adresa=destinatar_adresa,
+            destinatar_tara=destinatar_tara,
+            loc_livrare=loc_livrare,
+            loc_incarcare=loc_incarcare,
+            data_incarcare=data_incarcare if data_incarcare else date.today(),
+            marci_numere=marci_numere,
+            numar_colete=numar_colete,
+            mod_ambalare=mod_ambalare,
+            natura_marfii=natura_marfii,
+            nr_static=nr_static,
+            greutate_bruta=greutate_bruta,
+            cubaj=cubaj,
+            instructiuni_expeditor=instructiuni_expeditor,
+            conventii_speciale=conventii_speciale
+        )
+        cmr.save()
+        return Response({"message": "CMR added successfully"}, status=200)
+    else:
+        return Response({"error": "You are not authorized to add a CMR"}, status=403)
+
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteCMR(request):
+    userr = request.user
+    cmr_id = request.data.get('cmr_id')
+    try:
+        cmr = CMR.objects.get(id=cmr_id)
+    except CMR.DoesNotExist:
+        return Response("CMR does not exist", status=404)
+
+    if cmr.transport.dispatcher == userr or cmr.driver == userr:
+        cmr.delete()
+        return Response("CMR deleted successfully", status=200)
+    else:
+        return Response("You are not authorized to delete this CMR", status=403)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateCMR(request):
+    userr = request.user
+    cmr_id = request.data.get('cmr_id')
+    try:
+        cmr = CMR.objects.get(id=cmr_id)
+    except CMR.DoesNotExist:
+        return Response("CMR does not exist", status=404)
+
+    if cmr.transport.dispatcher == userr or cmr.driver == userr:
+        fields_to_update = [
+            'expeditor_nume', 'expeditor_adresa', 'expeditor_tara',
+            'destinatar_nume', 'destinatar_adresa', 'destinatar_tara',
+            'loc_livrare', 'loc_incarcare', 'data_incarcare',
+            'marci_numere', 'numar_colete', 'mod_ambalare',
+            'natura_marfii', 'nr_static', 'greutate_bruta',
+            'cubaj', 'instructiuni_expeditor', 'conventii_speciale'
+        ]
+
+        for field in fields_to_update:
+            if field in request.data:
+                setattr(cmr, field, request.data.get(field))
+
+        cmr.save()
+        return Response("CMR updated successfully", status=200)
+    else:
+        return Response("You are not authorized to update this CMR", status=403)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getCMRByTransport(request, transport_id):
+    userr = request.user
+    try:
+        transport = Transport.objects.get(id=transport_id)
+    except Transport.DoesNotExist:
+        return Response("Transport does not exist", status=404)
+
+    if userr.is_dispatcher or userr.is_driver:
+        cmr = CMR.objects.filter(transport=transport).first()
+        if cmr:
+            cmr_json = {
+                'id': cmr.id,
+                'transport_id': cmr.transport.id,
+                'driver_id': cmr.driver.id if cmr.driver else None,
+                'expeditor_nume': cmr.expeditor_nume,
+                'expeditor_adresa': cmr.expeditor_adresa,
+                'expeditor_tara': cmr.expeditor_tara,
+                'destinatar_nume': cmr.destinatar_nume,
+                'destinatar_adresa': cmr.destinatar_adresa,
+                'destinatar_tara': cmr.destinatar_tara,
+                'loc_livrare': cmr.loc_livrare,
+                'loc_incarcare': cmr.loc_incarcare,
+                'data_incarcare': cmr.data_incarcare,
+                'marci_numere': cmr.marci_numere,
+                'numar_colete': cmr.numar_colete,
+                'mod_ambalare': cmr.mod_ambalare,
+                'natura_marfii': cmr.natura_marfii,
+                'nr_static': cmr.nr_static,
+                'greutate_bruta': cmr.greutate_bruta,
+                'cubaj': cmr.cubaj,
+                'instructiuni_expeditor': cmr.instructiuni_expeditor,
+                'conventii_speciale': cmr.conventii_speciale
+            }
+            return Response(cmr_json, status=200)
+        else:
+            return Response("No CMR found for this transport", status=404)
+    else:
+        return Response("You are not authorized to view CMRs", status=403)
+
+def addTruck(request):
+    userr = request.user
+    company = userr.company
+    if userr.is_dispatcher:
+        license_plate = request.data.get('license_plate')
+        vin = request.data.get('vin')
+        make = request.data.get('make')
+        model = request.data.get('model')
+        year = request.data.get('year')
+        next_service_date = request.data.get('next_service_date')
+        last_service_date = request.data.get('last_service_date')
+
+        truck = Truck.objects.create(
+            license_plate=license_plate,
+            vin=vin,
+            company=company,
+            make=make,
+            model=model,
+            year=year,
+            next_service_date=next_service_date,
+            last_service_date=last_service_date
+        )
+        truck.save()
+        return Response("Truck added", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def UploadTruckDocuments(request):
+    truck = request.data.get('truck_id')
+    title = request.data.get('title')
+    category = request.data.get('category')
+    document=request.data.get('document')
+    try:
+        truck = Truck.objects.get(id=truck)
+    except Truck.DoesNotExist:
+        return Response("Truck does not exist", status=404)
+
+    if not title:
+        return Response("Title is required", status=400)
+    if document == None:
+        return Response("Document is required", status=400)
+    document = TruckDocument.objects.create(truck=truck, title=title, category=category, document=document)
+    document.save()
+    return Response("Document uploaded", status=200)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteTruck(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        truck_id = request.data.get('truck_id')
+        truck = Truck.objects.get(id=truck_id)
+
+        documents = TruckDocument.objects.filter(truck=truck)
+        for document in documents:
+            document.document.delete(save=False)
+            document.delete()
+
+        truck.delete()
+        return Response("Truck deleted", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllTrucks(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        trucks = Truck.objects.filter(company=userr.company)
+        trucks_list = []
+        for truck in trucks:
+            truck_json = {
+                'id': truck.id,
+                'license_plate': truck.license_plate,
+                'vin': truck.vin,
+                'make': truck.make,
+                'model': truck.model,
+                'year': truck.year,
+                'next_service_date': truck.next_service_date,
+                'last_service_date': truck.last_service_date
+            }
+            trucks_list.append(truck_json)
+        return Response(trucks_list, status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addTrailer(request):
+    userr = request.user
+    company = userr.company
+    if userr.is_dispatcher:
+        license_plate = request.data.get('license_plate')
+        vin = request.data.get('vin')
+        make = request.data.get('make')
+        model = request.data.get('model')
+        year = request.data.get('year')
+        next_service_date = request.data.get('next_service_date')
+        last_service_date = request.data.get('last_service_date')
+
+        trailer = Trailer.objects.create(
+            license_plate=license_plate,
+            vin=vin,
+            company=company,
+            make=make,
+            model=model,
+            year=year,
+            next_service_date=next_service_date,
+            last_service_date=last_service_date
+        )
+        trailer.save()
+        return Response("Trailer added", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteTrailer(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        trailer_id = request.data.get('trailer_id')
+        trailer = Trailer.objects.get(id=trailer_id)
+
+        documents = TrailerDocument.objects.filter(trailer=trailer)
+        for document in documents:
+            document.document.delete(save=False)
+            document.delete()
+
+        trailer.delete()
+        return Response("Trailer deleted", status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllTrailers(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        trailers = Trailer.objects.filter(company=userr.company)
+        trailers_list = []
+        for trailer in trailers:
+            trailer_json = {
+                'id': trailer.id,
+                'license_plate': trailer.license_plate,
+                'vin': trailer.vin,
+                'make': trailer.make,
+                'model': trailer.model,
+                'year': trailer.year,
+                'next_service_date': trailer.next_service_date,
+                'last_service_date': trailer.last_service_date
+            }
+            trailers_list.append(trailer_json)
+        return Response(trailers_list, status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def latestNTransports(request, n, driver_id):
+    #n = request.query_params.get('n', 5)  # Default to 5 if 'n' is not provided
+    userr = request.user
+    if userr.is_dispatcher:
+        #driver_id = request.query_params.get('driver_id')
+        try:
+            driver = User.objects.get(id=driver_id, is_driver=True, company=userr.company)
+        except User.DoesNotExist:
+            return Response("Driver does not exist or is not part of your company", status=404)
+        transports = Transport.objects.filter(dispatcher=userr, driver=driver).order_by('-id')[:n]
+    elif userr.is_driver:
+        transports = Transport.objects.filter(driver=userr).order_by('-id')[:n]
+    else:
+        return Response("You are not authorized to view transports", status=403)
+
+    transports_list = []
+    for transport in transports:
+        goods_photos_list = [
+            {
+                'id': photo.id,
+                'url': photo.photo.url,
+                'uploaded_at': photo.uploaded_at
+            }
+            for photo in transport.goods_photos.all()
+        ]
+        transport_json = {
+            'id': transport.id,
+            'driver': transport.driver.id,
+            'truck': transport.truck.id if transport.truck else None,
+            'trailer': transport.trailer.id if transport.trailer else None,
+            'dispatcher': transport.dispatcher.id,
+            'status_truck': transport.status_truck,
+            'status_truck_text': transport.status_truck_text,
+            'status_goods': transport.status_goods,
+            'truck_combination': transport.truck_combination,
+            'status_coupling': transport.status_coupling,
+            'trailer_type': transport.trailer_type,
+            'trailer_number': transport.trailer_number,
+            'status_trailer_wagon': transport.status_trailer_wagon,
+            'status_loaded_truck': transport.status_loaded_truck,
+            'detraction': transport.detraction,
+            'status_transport': transport.status_transport,
+            'goods_photos': goods_photos_list,
+        }
+        transports_list.append(transport_json)
+    return Response(transports_list, status=200)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def doesCMRExist(request, transport_id):
+    userr = request.user
+    try:
+        transport = Transport.objects.get(id=transport_id)
+    except Transport.DoesNotExist:
+        return Response("Transport does not exist", status=404)
+
+    if userr.is_dispatcher or userr.is_driver:
+        cmr_exists = CMR.objects.filter(transport=transport).exists()
+        if cmr_exists:
+            return Response({"exists": True}, status=200)
+        else:
+            return Response({"exists": False}, status=200)
+    else:
+        return Response("You are not authorized to view CMRs", status=403)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def lateTransports(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        late_transports_count = Transport.objects.filter(dispatcher=userr, status_transport='Întârziat').count()
+        return Response(late_transports_count, status=200)
+    else:
+        return Response("You are not a dispatcher", status=403)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def activeTransports(request):
+    userr = request.user
+    if userr.is_dispatcher:
+        transports_without_cmr = Transport.objects.filter(cmrs__isnull=True)
+        transports_list = []
+        for transport in transports_without_cmr:
+            transport_json = {
+            'id': transport.id,
+            'driver': transport.driver.id,
+            'truck': transport.truck.id if transport.truck else None,
+            'trailer': transport.trailer.id if transport.trailer else None,
+            'dispatcher': transport.dispatcher.id,
+            'status_truck': transport.status_truck,
+            'status_truck_text': transport.status_truck_text,
+            'status_goods': transport.status_goods,
+            'truck_combination': transport.truck_combination,
+            'status_coupling': transport.status_coupling,
+            'trailer_type': transport.trailer_type,
+            'trailer_number': transport.trailer_number,
+            'status_trailer_wagon': transport.status_trailer_wagon,
+            'status_loaded_truck': transport.status_loaded_truck,
+            'detraction': transport.detraction,
+            'status_transport': transport.status_transport,
+            }
+            transports_list.append(transport_json)
+        return Response({"count": len(transports_list), "transports": transports_list}, status=200)
+    else:
+        return Response("You are not authorized to view active transports", status=403)
+    
+
+
+
+ """

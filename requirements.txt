@@ -8,3 +8,4 @@ django-cors-headers
 django-storages[s3]
 gspread
 oauth2client
+drf-spectacular

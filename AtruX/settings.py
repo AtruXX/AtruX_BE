@@ -42,18 +42,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "corsheaders",
     "storages",
+    'drf_spectacular',
 
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
     'base',
     'accounts',
+    'transports',
+    'vehicles',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 MIDDLEWARE = [
@@ -197,3 +201,10 @@ AWS_ACCESS_KEY_ID = os.environ['BUCKETEER_AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['BUCKETEER_AWS_SECRET_ACCESS_KEY']
 AWS_STORAGE_BUCKET_NAME = os.environ['BUCKETEER_BUCKET_NAME']
 AWS_S3_REGION_NAME = os.environ['BUCKETEER_AWS_REGION']
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'AtruX API',
+    'DESCRIPTION': 'The AtruX API documentation',
+    'VERSION': '0.1',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
