@@ -11,7 +11,6 @@ class UserCreateSerializerr(UserCreateSerializer):
         model = User
         fields = ("id", "email", "name", "company", "password", "is_dispatcher", "is_driver")
 
-
 class DriverSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
 

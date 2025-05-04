@@ -28,8 +28,9 @@ class Transport(models.Model):
     goods_photos = models.ManyToManyField('GoodsPhoto', blank=True)
     delay_estimation = models.DurationField(max_length=100, blank=True, null=True)
     time_estimation = models.DateTimeField(max_length=100, blank=True, null=True)
-    origin_city = models.CharField(max_length=100, blank=True, null=True)
-    destination_city = models.CharField(max_length=100, blank=True, null=True)
+    origin_city = models.CharField(max_length=100)
+    destination_city = models.CharField(max_length=100)
+    goods_type = models.CharField(max_length=100)
 
 class Point(models.Model):
     name = models.CharField(max_length=100)

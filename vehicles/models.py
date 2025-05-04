@@ -1,5 +1,6 @@
 from django.db import models
 from base.models import Company
+from utils.status_enums import VEHICLE_STATUSES, FREE
 
 class Truck(models.Model):
     license_plate = models.CharField(max_length=100, unique=True)
@@ -10,6 +11,7 @@ class Truck(models.Model):
     year = models.IntegerField()
     next_service_date = models.DateField()
     last_service_date = models.DateField()
+    status = models.CharField(max_length=100, default='free')
 
 class Trailer(models.Model):
     license_plate = models.CharField(max_length=100, unique=True)
@@ -20,6 +22,7 @@ class Trailer(models.Model):
     year = models.IntegerField()
     next_service_date = models.DateField()
     last_service_date = models.DateField()
+    status = models.CharField(max_length=100, default='free')
 
 class TruckDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)
@@ -27,6 +30,7 @@ class TruckDocument(models.Model):
     document = models.FileField(upload_to="truck_documents/", blank=False, null=False)
     category = models.CharField(max_length=100, blank=True, null=True)
     expiration_date = models.DateField(blank=True, null=True)
+    status = models.CharField(max_length=100, default='free')
 
 class TrailerDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)
@@ -34,3 +38,5 @@ class TrailerDocument(models.Model):
     document = models.FileField(upload_to="trailer_documents/", blank=False, null=False)
     category = models.CharField(max_length=100, blank=True, null=True)
     expiration_date = models.DateField(blank=True, null=True)
+    status = models.CharField(max_length=100, default='free')
+
