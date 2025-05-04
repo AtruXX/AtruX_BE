@@ -35,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = '__all__'
+        exclude = ["password"]
 
     def assign_serializer(self, obj):
         if obj.is_driver:
