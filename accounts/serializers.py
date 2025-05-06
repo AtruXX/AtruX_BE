@@ -9,14 +9,13 @@ class UserCreateSerializerr(UserCreateSerializer):
     company = serializers.CharField(required=False, allow_null=True)
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ("id", "email", "name", "company", "password", "is_dispatcher", "is_driver")
+        fields = ("id", "email", "name", "company", "password", "is_dispatcher", "is_driver", "phone_number")
 
 class DriverSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
-
     class Meta:
         model = Driver
-        fields = ['average_rating', 'on_road']
+        fields = ['average_rating', 'on_road', 'license_exp_date', 'dispatcher_phone_num']
 
     def get_average_rating(self, obj):
         if obj.nr_of_ratings == 0:
