@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'accounts',
     'transports',
     'vehicles',
+    "phonenumber_field",
 ]
 
 REST_FRAMEWORK = {

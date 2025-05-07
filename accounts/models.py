@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from base.models import Company
+from phonenumber_field.modelfields import PhoneNumberField
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, email, name, is_driver, is_dispatcher, company, password=None):
+    def create_user(self, email, name, is_driver, is_dispatcher, company, password=None, phone_number=None):
         if not email:
             raise ValueError("Users must have an email address")
         
@@ -12,12 +13,15 @@ class MyUserManager(BaseUserManager):
         elif is_dispatcher == False and is_driver == False:
             raise ValueError("Must be either driver or dispatcher")
 
+        print(phone_number)
+
         user = self.model(
             email = self.normalize_email(email),
             name = name,
             company = company,
             is_dispatcher=is_dispatcher,
             is_driver=is_driver,
+            phone_number=phone_number
         )
 
         user.set_password(password)
@@ -56,11 +60,12 @@ class User(AbstractBaseUser):
     is_dispatcher = models.BooleanField(default=False)
     is_driver = models.BooleanField(default=False)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    phone_number = PhoneNumberField(null=False, blank=False)
 
     objects = MyUserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["name", "company", "is_dispatcher", "is_driver"]
+    REQUIRED_FIELDS = ["name", "company", "is_dispatcher", "is_driver", "phone_number"]
 
 class Dispatcher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="dispatcher")
