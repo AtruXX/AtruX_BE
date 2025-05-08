@@ -2,7 +2,7 @@ from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from accounts.models import User, Dispatcher, Driver, Document
-import phonenumbers
+from utils.utils_enums import PERSONAL_DOCUMENTS_CATEGORIES
 
 
 User = get_user_model()
@@ -35,6 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
     driver = DriverSerializer()
     dispatcher = DispatcherSerializer()
     company = serializers.SerializerMethodField(source='company')
+    license_expiration_date = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -52,10 +53,24 @@ class UserSerializer(serializers.ModelSerializer):
             return DispatcherSerializer(dispatcher).data
         return None
     
+    def get_license_expiration_date(self, obj):
+        try:
+            license = Document.objects.get(user=obj.id, category="permis_de_conducere")
+        except Document.DoesNotExist:
+            return None
+        if license.expiration_date:
+            return license.expiration_date
+        return None
+    
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = '__all__'
+
+    def validate_category(self, value):
+        if value not in PERSONAL_DOCUMENTS_CATEGORIES:
+            raise serializers.ValidationError("Invalid category.")
+        return value
 
     def validate(self, data):
             if not self.partial:

@@ -1,6 +1,5 @@
 from django.db import models
 from base.models import Company
-from utils.status_enums import VEHICLE_STATUSES, FREE
 
 class Truck(models.Model):
     license_plate = models.CharField(max_length=100, unique=True)

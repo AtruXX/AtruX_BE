@@ -82,3 +82,4 @@ class Document(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)
     document = models.FileField(upload_to="documents/", blank=True, null=True)
     category = models.CharField(max_length=100, blank=True, null=True)
+    expiration_date = models.DateField(blank=True, null=True)

@@ -35,7 +35,7 @@ def reset_pass_ok(request):
 def GetAllDrivers(request):
     userr = request.user
     if userr.is_dispatcher:
-        drivers = User.objects.filter(company=userr.company, is_driver=True)
+        drivers = User.objects.filter(company=userr.company, is_driver=True)            
         serializer = UserSerializer(drivers, many=True)
         return Response({
             "number_of_drivers": drivers.count(),
@@ -96,8 +96,19 @@ def ChangeStatus(request):
     else:
         return Response("You are not a driver", status=status.HTTP_403_FORBIDDEN)
 
+def DocumentExists(request, userr):
+    category = request.data.get('category')
+    if category == 'permis_de_conducere' or category == request.data.get('buletin'):
+        documents = Document.objects.filter(user=userr, category=category)
+        if documents.exists():
+            return True
+    return False
+
 def DocumentUpload(request):
     userr = request.user
+    if DocumentExists(request, userr):
+        return Response("You already have a document of this type", status=status.HTTP_400_BAD_REQUEST)
+    
     data = request.data.copy()
     data['user'] = userr.id
     serializer = DocumentSerializer(data=data)
@@ -129,6 +140,9 @@ def DeleteUserDocument(request, id):
 
 def UpdateDocument(request, id):
     userr = request.user
+    if DocumentExists(request, userr) and request.data.get('category') != None:
+        return Response("You already have a document of this type", status=status.HTTP_400_BAD_REQUEST)
+    
     try:
         document = Document.objects.get(id=id)
 
