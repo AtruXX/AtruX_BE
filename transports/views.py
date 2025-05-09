@@ -3,9 +3,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Transport, Route, Point
+from .models import Transport, Route, Point, CMR
 from .models import TransportDocument
-from .serializers import TransportSerializer, TransportDocumentSerializer, RouteSerializer, PointSerializer
+from .serializers import TransportSerializer, TransportDocumentSerializer, RouteSerializer, PointSerializer, CMRSerializer
 
 def IsUserAssignedToTransport(user, transport):
     if user.is_dispatcher:
@@ -226,3 +226,82 @@ def RouteViews(request, id=None):
         return GetRoute(request, id)
     if request.method == 'POST':
         return CreateRoute(request, id)
+    
+
+
+def CreateCMR(request, id):
+    userr = request.user
+    try:
+        transport = Transport.objects.get(company=userr.company, id=id)
+        if not IsUserAssignedToTransport(userr, transport):
+            return Response("You are not assigned to this transport", status=status.HTTP_403_FORBIDDEN)
+    except Transport.DoesNotExist:
+        return Response("Transport not found", status=status.HTTP_404_NOT_FOUND)
+    
+    data = request.data.copy()
+    data['transport'] = transport.id
+    data['driver'] = transport.driver.id
+    data['dispatcher'] = transport.dispatcher.id
+
+    serializer = CMRSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def GetCMR(request, id):
+    userr = request.user
+    try:
+        transport = Transport.objects.get(company=userr.company, id=id)
+        if not IsUserAssignedToTransport(userr, transport):
+            return Response("You are not assigned to this transport", status=status.HTTP_403_FORBIDDEN)
+    except Transport.DoesNotExist:
+        return Response("Transport not found", status=status.HTTP_404_NOT_FOUND)
+    
+    cmr = CMR.objects.filter(transport=transport)
+    if not cmr.exists():
+        return Response("CMR not found", status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = CMRSerializer(cmr, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+def UpdateCMR(request, id):
+    userr = request.user
+    try:
+        cmr = CMR.objects.get(id=id)
+        transport = cmr.transport
+        if not IsUserAssignedToTransport(userr, transport):
+            return Response("You are not assigned to this transport", status=status.HTTP_403_FORBIDDEN)
+    except CMR.DoesNotExist:
+        return Response("CMR not found", status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = CMRSerializer(cmr, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def DeleteCMR(request, id):
+    userr = request.user
+    try:
+        cmr = CMR.objects.get(id=id)
+        transport = cmr.transport
+        if not IsUserAssignedToTransport(userr, transport):
+            return Response("You are not assigned to this transport", status=status.HTTP_403_FORBIDDEN)
+    except CMR.DoesNotExist:
+        return Response("CMR not found", status=status.HTTP_404_NOT_FOUND)
+    
+    cmr.delete()
+    return Response("CMR deleted", status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST', 'PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def CMRViews(request, id=None):
+    if request.method == 'POST':
+        return CreateCMR(request, id)
+    if request.method == 'GET':
+        return GetCMR(request, id)
+    if request.method == 'PATCH':
+        return UpdateCMR(request, id)
+    if request.method == 'DELETE':
+        return DeleteTransport(request, id)

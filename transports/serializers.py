@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Transport, TransportDocument, Route, Point
+from .models import Transport, TransportDocument, Route, Point, CMR
 
 class TransportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,4 +39,8 @@ class RouteSerializer(serializers.ModelSerializer):
             Point.objects.create(route=route, **point_data)
         return route
         
+class CMRSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CMR
+        fields = '__all__'
         

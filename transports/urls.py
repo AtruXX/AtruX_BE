@@ -7,5 +7,7 @@ urlpatterns = [
 
     path('transport-documents/<int:id>', views.TransportDocumentViews),
 
-    path('transport-routes/<int:id>', views.RouteViews)
+    path('transport-routes/<int:id>', views.RouteViews),
+
+    path('transport-cmr/<int:id>', views.CMRViews),
 ]
