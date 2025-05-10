@@ -10,4 +10,6 @@ urlpatterns = [
     path('transport-routes/<int:id>', views.RouteViews),
 
     path('transport-cmr/<int:id>', views.CMRViews),
+    path('inactive-transports', views.InactiveTransports),
+    path('active-transports', views.ActiveTransports),
 ]

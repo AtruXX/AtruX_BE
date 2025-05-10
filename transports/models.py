@@ -31,6 +31,7 @@ class Transport(models.Model):
     origin_city = models.CharField(max_length=100)
     destination_city = models.CharField(max_length=100)
     goods_type = models.CharField(max_length=100)
+    is_finished = models.BooleanField(default=False)
 
 class Route(models.Model):
     transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='routes')
