@@ -167,5 +167,102 @@ def DocumentViews(request, id=None):
         return DeleteUserDocument(request, id)
     elif request.method == 'PATCH':
         return UpdateDocument(request, id)
+
+
+def validate_driver(driver_id):
+        try:
+            driver = User.objects.get(id=driver_id)
+            if not driver:
+                return Response("No driver found with that ID", status=status.HTTP_404_NOT_FOUND)
+            if not driver.is_driver:
+                return Response("This user is not a driver", status=status.HTTP_400_BAD_REQUEST)
+            return driver
+        except User.DoesNotExist:
+            return Response("No user found with that ID", status=status.HTTP_404_NOT_FOUND)
+
+
+def GetDriverDocuments(request, driver_id):
+    userr = request.user
+    if not userr.is_dispatcher:
+        return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
+    
+    driver = validate_driver(driver_id)
+    if isinstance(driver, Response):
+        return driver
+    
+    documents = Document.objects.filter(user=driver)
+    serializer = DocumentSerializer(documents, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+def DriverDocumentUpload(request, driver_id):
+    userr = request.user
+    if not userr.is_dispatcher:
+        return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
+    
+    driver = validate_driver(driver_id)
+    if isinstance(driver, Response):
+        return driver
+
+    if DocumentExists(request, driver):
+        return Response("The driver already has a document of this type", status=status.HTTP_400_BAD_REQUEST)
+
+    data = request.data.copy()
+    data['user'] = driver.id
+    serializer = DocumentSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def DeleteDriverDocument(request, driver_id, document_id):
+    userr = request.user
+    if not userr.is_dispatcher:
+        return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
+    
+    driver = validate_driver(driver_id)
+    if isinstance(driver, Response):
+        return driver
+
+    try:
+        document = Document.objects.get(id=document_id)
+        document.delete()
+        return Response("Document deleted", status=status.HTTP_200_OK)
+    except Document.DoesNotExist:
+        return Response("Document not found", status=status.HTTP_404_NOT_FOUND)
+
+
+def UpdateDriverDocument(request, driver_id, document_id):
+    userr = request.user
+    if not userr.is_dispatcher:
+        return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
+    
+    if DocumentExists(request, userr) and request.data.get('category') != None:
+        return Response("You already have a document of this type", status=status.HTTP_400_BAD_REQUEST)
+    
+    validation_response = validate_driver(driver_id)
+    if isinstance(validation_response, Response):
+        return validation_response
+
+    try:
+        document = Document.objects.get(id=document_id)
+        serializer = DocumentSerializer(document, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Document.DoesNotExist:
+        return Response("Document not found", status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET', 'POST', 'DELETE', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def DriverDocumentViews(request, driver_id=None, document_id=None):
+    if request.method == 'GET':
+        return GetDriverDocuments(request, driver_id)
+    if request.method == 'POST':
+        return DriverDocumentUpload(request, driver_id)
+    if request.method == 'DELETE':
+        return DeleteDriverDocument(request, driver_id, document_id)
+    if request.method == 'PATCH':
+        return UpdateDriverDocument(request, driver_id, document_id)
     
     

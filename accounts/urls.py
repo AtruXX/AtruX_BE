@@ -17,4 +17,6 @@ urlpatterns = [
     path('personal-documents/', views.DocumentViews),
     re_path(r'^personal-documents/(?P<category>[^/]+)/$', views.DocumentViews),
     path('personal-documents/<int:id>', views.DocumentViews),
+    path('personal-documents/driver/<int:driver_id>', views.DriverDocumentViews),
+    path('personal-documents/driver/<int:driver_id>/<int:document_id>', views.DriverDocumentViews),
 ]
