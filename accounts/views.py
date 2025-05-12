@@ -265,18 +265,4 @@ def DriverDocumentViews(request, driver_id=None, document_id=None):
     if request.method == 'PATCH':
         return UpdateDriverDocument(request, driver_id, document_id)
     
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def UserDocuments(request, id):
-    userr = request.user
-    if not userr.is_dispatcher:
-        return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
-    try:
-        driver = User.objects.get(id=id, company=userr.company, is_driver=True)
-        documents = Document.objects.filter(user=driver)
-        serializer = DocumentSerializer(documents, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
-        return Response("Driver not found or does not belong to your company", status=status.HTTP_404_NOT_FOUND)
-    
     
