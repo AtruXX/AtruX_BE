@@ -263,6 +263,12 @@ def CreateCMR(request, id):
     except Transport.DoesNotExist:
         return Response("Transport not found", status=status.HTTP_404_NOT_FOUND)
     
+    try:
+        cmr = CMR.objects.get(transport=transport)
+        return Response("CMR already exists", status=status.HTTP_400_BAD_REQUEST)
+    except CMR.DoesNotExist:
+        pass
+
     data = request.data.copy()
     data['transport'] = transport.id
     data['driver'] = transport.driver.id
