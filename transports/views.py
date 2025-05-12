@@ -101,6 +101,31 @@ def TransportViews(request, id=None):
         return DeleteTransport(request, id)
     if request.method == 'GET':
         return GetTransport(request, id)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ActiveTransports(request):
+    user = request.user
+    transports = Transport.objects.filter(company=user.company, is_finished=False)
+
+    serializer = TransportSerializer(transports, many=True)
+    return Response({
+        "number_of_active_transports": transports.count(),
+        "active_transports": serializer.data
+    }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def InactiveTransports(request):
+    user = request.user
+    transports = Transport.objects.filter(company=user.company, is_finished=True)
+
+    serializer = TransportSerializer(transports, many=True)
+    return Response({
+        "number_of_inactive_transports": transports.count(),
+        "inactive_transports": serializer.data
+    }, status=status.HTTP_200_OK)
+
 
 def UploadTransportDocuments(request, id):
     userr = request.user

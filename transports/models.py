@@ -31,6 +31,7 @@ class Transport(models.Model):
     origin_city = models.CharField(max_length=100)
     destination_city = models.CharField(max_length=100)
     goods_type = models.CharField(max_length=100)
+    is_finished = models.BooleanField(default=False)
 
 class Route(models.Model):
     transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='routes')
@@ -71,3 +72,15 @@ class CMR(models.Model):
     instructiuni_expeditor = models.TextField(blank=True, null=True)
     conventii_speciale = models.TextField(blank=True, null=True)
     UIT = models.CharField(max_length=100, blank=True, null=True)
+    incheiat_la = models.JSONField(default=dict)
+    de_plata = models.JSONField(default=dict)
+    semnatura_expeditor = models.CharField(max_length=100, blank=True, null=True)
+    semnatura_transportator = models.CharField(max_length=100, blank=True, null=True)
+    semnatura_destinatar = models.CharField(max_length=100, blank=True, null=True)
+    numar_cmr = models.CharField(max_length=100, blank=True, null=True)
+    data_emitere = models.DateField(blank=True, null=True)
+    transportator = models.CharField(max_length=255, blank=True, null=True)
+    transportatori_succesivi = models.TextField(blank=True, null=True)
+    rezerve_observatii = models.TextField(blank=True, null=True)
+    prescriptii_francare = models.CharField(max_length=100, blank=True, null=True)
+    rambursare = models.CharField(max_length=100, blank=True, null=True)
