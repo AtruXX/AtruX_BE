@@ -40,8 +40,8 @@ class Route(models.Model):
 class Point(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name='points')
     name = models.CharField(max_length=100)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=20, decimal_places=17)
+    longitude = models.DecimalField(max_digits=20, decimal_places=17)
 
 class TransportDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)

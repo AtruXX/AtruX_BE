@@ -236,8 +236,6 @@ def CreateRoute(request, id):
     data['transport'] = transport.id
     data['date'] = date.today()
 
-    print(data)
-
     serializer = RouteSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
