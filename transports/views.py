@@ -333,4 +333,4 @@ def CMRViews(request, id=None):
     if request.method == 'PATCH':
         return UpdateCMR(request, id)
     if request.method == 'DELETE':
-        return DeleteTransport(request, id)
+        return DeleteCMR(request, id)
