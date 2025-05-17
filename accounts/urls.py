@@ -19,4 +19,5 @@ urlpatterns = [
     path('personal-documents/<int:id>', views.DocumentViews),
     path('personal-documents/driver/<int:driver_id>', views.DriverDocumentViews),
     path('personal-documents/driver/<int:driver_id>/<int:document_id>', views.DriverDocumentViews),
+    path('add-driver', views.AddDriver),
 ]

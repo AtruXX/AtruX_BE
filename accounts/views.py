@@ -5,7 +5,8 @@ from accounts.models import User, Driver, Document
 from rest_framework.response import Response
 from .serializers import UserSerializer, DocumentSerializer
 from rest_framework import status
-
+import requests
+import os
 """ PAGES """
 
 def activation_page(request, uid, token):
@@ -265,4 +266,26 @@ def DriverDocumentViews(request, driver_id=None, document_id=None):
     if request.method == 'PATCH':
         return UpdateDriverDocument(request, driver_id, document_id)
     
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def AddDriver(request):
+    userr = request.user
+    if not userr.is_dispatcher:
+        return Response("You are not a dispatcher", status=status.HTTP_403_FORBIDDEN)
+    
+    data = request.data.copy()
+    data['company'] = userr.company_id
+    data['password'] = request.data.get('password')
+    data['is_driver'] = True
+    data['is_active'] = True
+    data['is_dispatcher'] = False
+    response = requests.post(
+        f"{os.environ.get('API_CREATE_ACC')}",
+        data=data
+    )
+    if response.status_code == 201:
+        return Response(response.json(), status=status.HTTP_201_CREATED)
+    else:
+        return Response(response.json(), status=response.status_code)
     

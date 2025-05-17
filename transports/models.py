@@ -23,7 +23,6 @@ class Transport(models.Model):
     status_trailer_wagon = models.CharField(max_length=100, default='ok')
     status_trailer_wagon_description = models.TextField(blank=True, null=True)
     status_loaded_truck = models.CharField(max_length=100, default='ok')
-    detraction = models.CharField(max_length=100)
     status_transport = models.CharField(max_length=100, default='not started')
     goods_photos = models.ManyToManyField('GoodsPhoto', blank=True)
     delay_estimation = models.DurationField(max_length=100, blank=True, null=True)
