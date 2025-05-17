@@ -13,7 +13,7 @@ class TruckDocumentSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
             if not self.partial:
-                required_fields = ['document', 'category', 'title', 'expiration_date']
+                required_fields = ['document', 'category', 'title']
 
                 for field in required_fields:
                     if field not in data:
@@ -32,7 +32,7 @@ class TrailerDocumentSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
             if not self.partial:
-                required_fields = ['document', 'category', 'title', 'expiration_date']
+                required_fields = ['document', 'category', 'title']
 
                 for field in required_fields:
                     if field not in data:
