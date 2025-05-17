@@ -4,19 +4,17 @@ from base.models import Company
 from phonenumber_field.modelfields import PhoneNumberField
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, email, name, is_driver, is_dispatcher, company, password=None, phone_number=None):
-        if not email:
-            raise ValueError("Users must have an email address")
-        
+    def create_user(self, username, name, is_driver, is_dispatcher, company, password=None, phone_number=None):
+        if not username:
+            raise ValueError("Users must have an username")
+
         if is_dispatcher == True and is_driver == True:
             raise ValueError("Cannot be driver and dispacher at the same time")
         elif is_dispatcher == False and is_driver == False:
             raise ValueError("Must be either driver or dispatcher")
 
-        print(phone_number)
-
         user = self.model(
-            email = self.normalize_email(email),
+            username = username,
             name = name,
             company = company,
             is_dispatcher=is_dispatcher,
@@ -35,13 +33,13 @@ class MyUserManager(BaseUserManager):
 
         return user
     
-    def create_superuser(self, email, name, password=None):
+    def create_superuser(self, username, name, password=None):
         
         user = self.create_user(
-            email,
+            username,
             name = name,
             password = password,
-            company=None
+            company=None,
         )
 
         user.is_admin = True
@@ -53,7 +51,9 @@ class User(AbstractBaseUser):
         verbose_name="email address",
         max_length=255,
         unique=True,
+        blank=True,
     )
+    username = models.CharField(max_length=40, unique=True)
     name = models.CharField(max_length=100, blank=False)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -64,7 +64,8 @@ class User(AbstractBaseUser):
 
     objects = MyUserManager()
 
-    USERNAME_FIELD = "email"
+    USERNAME_FIELD = "username"
+    EMAIL_FIELD = "email"
     REQUIRED_FIELDS = ["name", "company", "is_dispatcher", "is_driver", "phone_number"]
 
 class Dispatcher(models.Model):
