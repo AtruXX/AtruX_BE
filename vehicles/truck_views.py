@@ -4,6 +4,24 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Truck, TruckDocument
 from .serializers import TruckSerializer, TruckDocumentSerializer
+from datetime import datetime, timedelta
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ExpiringTruckDocs(request, id):
+    today = datetime.today().date()
+    ten_days = today + timedelta(days=10)
+    docs = TruckDocument.objects.filter(
+        truck_id=id,
+        expiration_date__lte=ten_days,
+        expiration_date__gte=today
+    )
+    titles = list(docs.values_list('category', flat=True))
+    return Response({
+        "expiring_truck_documents": docs.count(),
+        "titles": titles
+    }, status=status.HTTP_200_OK)
+
 
 def GetAllTrucks(request):
     userr = request.user

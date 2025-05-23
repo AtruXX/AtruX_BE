@@ -4,6 +4,24 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Trailer, TrailerDocument
 from .serializers import TrailerSerializer, TrailerDocumentSerializer
+from datetime import datetime, timedelta
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ExpiringTrailerDocs(request, id):
+    today = datetime.today().date()
+    ten_days = today + timedelta(days=10)
+    docs = TrailerDocument.objects.filter(
+        trailer_id=id,
+        expiration_date__lte=ten_days,
+        expiration_date__gte=today
+    )
+    titles = list(docs.values_list('category', flat=True))
+    return Response({
+        "expiring_trailer_documents": docs.count(),
+        "titles": titles
+    }, status=status.HTTP_200_OK)
+
 
 def GetAllTrailers(request):
     userr = request.user
