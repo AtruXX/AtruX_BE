@@ -7,6 +7,19 @@ from .serializers import UserSerializer, DocumentSerializer
 from rest_framework import status
 import requests
 import os
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+def send_notification(payload):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'dispatcher_notifications_channel',
+        {
+            'type': 'notify',
+            'data': payload
+        }
+    )
+
 """ PAGES """
 
 def activation_page(request, uid, token):
@@ -93,6 +106,11 @@ def ChangeStatus(request):
         driver.on_road = not driver.on_road
         driver.save()
         serializer = UserSerializer(user)
+        payload = {
+            'type': "driver_status_change",
+            'message': f"Driver {user.name} is now {'on the road' if driver.on_road else 'off the road'}"
+        }
+        send_notification(payload)
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response("You are not a driver", status=status.HTTP_403_FORBIDDEN)

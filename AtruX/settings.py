@@ -33,6 +33,8 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     "whitenoise.runserver_nostatic",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'transports',
     'vehicles',
     "phonenumber_field",
+    'notifications'
 ]
 
 REST_FRAMEWORK = {
@@ -124,7 +127,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'AtruX.wsgi.application'
+ASGI_APPLICATION = 'AtruX.asgi.application'
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": ["redis://default:4DPNnYrwDfWbk3koZbe54fshzNgq8Qai@redis-12390.c268.eu-west-1-2.ec2.redns.redis-cloud.com:12390"],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

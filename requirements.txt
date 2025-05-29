@@ -10,3 +10,6 @@ gspread
 oauth2client
 drf-spectacular
 django-phonenumber-field[phonenumberslite]
+channels
+daphne
+channels-redis
