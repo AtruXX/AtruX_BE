@@ -126,7 +126,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'AtruX.wsgi.application'
+# WSGI_APPLICATION = 'AtruX.wsgi.application'
 ASGI_APPLICATION = 'AtruX.asgi.application'
 
 CHANNEL_LAYERS = {
