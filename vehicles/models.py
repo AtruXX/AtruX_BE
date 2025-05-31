@@ -30,6 +30,8 @@ class TruckDocument(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
     expiration_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=100, default='free')
+    description = models.TextField(blank=True, null=True)
+    issuing_date = models.DateField(blank=True, null=True)
 
 class TrailerDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)
@@ -38,4 +40,6 @@ class TrailerDocument(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
     expiration_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=100, default='free')
+    description = models.TextField(blank=True, null=True)
+    issuing_date = models.DateField(blank=True, null=True)
 
