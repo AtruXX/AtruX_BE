@@ -16,9 +16,14 @@ def IsUserAssignedToTransport(user, transport):
 def GetAllTransports(request):
     user = request.user
     driver_id = request.query_params.get("driver")
+    transport_status = request.query_params.get("status")
 
     if user.is_dispatcher:
-        if driver_id:
+        if transport_status and driver_id:
+            transports = Transport.objects.filter(company=user.company, driver=driver_id, status=transport_status)
+        elif transport_status and not driver_id:
+            transports = Transport.objects.filter(company=user.company, status=transport_status)
+        elif not transport_status and driver_id:
             transports = Transport.objects.filter(company=user.company, driver=driver_id)
         else:
             transports = Transport.objects.filter(company=user.company)
@@ -45,6 +50,8 @@ def CreateTransport(request):
     data = request.data
     data['company'] = userr.company.code
     data['dispatcher'] = userr.id
+    if request.data.get("driver"):
+        data['status'] = "atribuit"
     if userr.is_dispatcher:
         serializer = TransportSerializer(data=data)
         if serializer.is_valid():
@@ -65,13 +72,17 @@ def TransportViewsNoID(request):
 
 def UpdateTransport(request, id):
     userr = request.user
+    data = request.data.copy()
     try:
         transport = Transport.objects.get(id=id)
 
         if not IsUserAssignedToTransport(userr, transport):
             return Response("You are not assigned to this transport", status=status.HTTP_403_FORBIDDEN)
         
-        serializer = TransportSerializer(transport, data=request.data, partial=True)
+        if request.data.get("driver"):
+            data['status'] = "atribuit"
+
+        serializer = TransportSerializer(transport, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

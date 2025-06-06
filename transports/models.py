@@ -9,7 +9,7 @@ class GoodsPhoto(models.Model):
 
 class Transport(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True, related_name='transports')
-    driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_transports')
+    driver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='driver_transports', null=True, blank=True)
     dispatcher = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='dispatcher_transports')
     truck = models.ForeignKey(Truck, on_delete=models.CASCADE, related_name='transports', null=True, blank=True)
     trailer = models.ForeignKey(Trailer, on_delete=models.CASCADE, related_name='transports', null=True, blank=True)
@@ -32,6 +32,7 @@ class Transport(models.Model):
     goods_type = models.CharField(max_length=100)
     is_finished = models.BooleanField(default=False)
     UIT = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=100, default='neatribuit')
 
 class Route(models.Model):
     transport = models.ForeignKey(Transport, on_delete=models.CASCADE, related_name='routes')

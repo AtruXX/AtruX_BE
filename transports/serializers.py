@@ -1,10 +1,16 @@
 from rest_framework import serializers
 from .models import Transport, TransportDocument, Route, Point, CMR
+from utils.utils_enums import TRANSPORT_STATUSES
 
 class TransportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transport
         fields = '__all__'
+
+    def validate_status(self, value):
+        if value not in TRANSPORT_STATUSES:
+            raise serializers.ValidationError("Invalid transport status. Allowed values are: " + ", ".join(TRANSPORT_STATUSES))
+        return value
 
 class TransportDocumentSerializer(serializers.ModelSerializer):
     class Meta:

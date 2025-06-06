@@ -22,6 +22,7 @@ class Trailer(models.Model):
     next_service_date = models.DateField()
     last_service_date = models.DateField()
     status = models.CharField(max_length=100, default='free')
+    type = models.CharField(max_length=100)
 
 class TruckDocument(models.Model):
     title = models.CharField(max_length=100, blank=True, null=True)
